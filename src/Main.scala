@@ -51,78 +51,47 @@ object Main {
       yield Block(Position(lineIndex, chIndex), None)).head
   }
 
-  def moveBlock(direction: Char, block: Block, map: Map): Unit = {
-    direction match {
-      case 'd' => {
-        // check if block falls outside
-        // update block fields
-        // update map
-        // print new map state or if game finished
-        // if game not finished read another player move
-        // call moveBlock
-      }
-      case 'u' =>
-      case 'l' =>
-      case 'r' =>
+  def getCoordsTuple(ch: Char): (Int, Int) = {
+    ch match {
+      case 'r' => (0, 1)
+      case 'l' => (0, -1)
+      case 'd' => (1, 0)
+      case 'u' => (-1, 0)
     }
+  }
+
+  def printMap(map: Map) {
+    for(line <- map.map) println(line.mkString(""))
+    println("\n")
   }
 
   def playMove(direction: Char, block: Block, map: Map): String = {
-    direction match {
-      case 'd' => {
-//        block match {
-//          case Block(pos1, None) =>
-//            if (map.map(pos1.x + 1)(pos1.y) == '-' || map.map(pos1.x + 2)(pos1.y) == '-') "Zavrsena igra!"
-//            else ""
-//          case Block(pos1, Some(pos2)) if pos1.x == pos2.x =>
-//            if (map.map(pos1.x + 1)(pos1.y) == '-' || map.map(pos2.x + 1)(pos2.y) == '-') "Zavrsena igra!"
-//            else ""
-//          case Block(pos1, Some(pos2)) if pos1.x != pos2.x =>
-//            if (map.map(pos2.x + 1)(pos2.y) == '-') "Zavrsena igra!"
-//            else ""
-//        }
+    val row_col = getCoordsTuple(direction)
+    val row = row_col._1
+    val col = row_col._2
 
-        checkNewPosition(0, 1, block, map)
-      }
-      case 'u' => {
-
-      }
-      case 'l' => {
-
-      }
-      case 'r' => {
-        // check if block falls outside
-        // update block fields
-        // update map
-        // print new map state or if game finished
-        // if game not finished read another player move
-        // call moveBlock
-
-//        block match {
-//          case Block(pos1, None) =>
-//            if (map.map(pos1.x)(pos1.y + 1) == '-' || map.map(pos1.x)(pos1.y + 2) == '-') "Zavrsena igra!"
-//            else ""
-//          case Block(pos1, Some(pos2)) if pos1.x == pos2.x =>
-//            if (map.map(pos2.x)(pos2.y + 1) == '-') "Zavrsena igra!"
-//            else ""
-//          case Block(pos1, Some(pos2)) if pos1.x != pos2.x =>
-//            if (map.map(pos1.x)(pos1.y + 1) == '-' || map.map(pos2.x)(pos2.y + 1) == '-') "Zavrsena igra!"
-//            else ""
-//        }
-      }
-    }
-  }
-
-  def checkNewPosition(row: Int, col: Int, block: Block, map: Map): Boolean = {
     block match {
       case Block(pos1, None) =>
-        if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-') false
-        else ""
+        if ( map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-' ||
+          map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos1.x + 2 * row)(pos1.y) == '-' )
+          "Fail"
+        else {
+          map.map(pos1.x).map(ch => if (ch == 'X') '.' else ch)             // replace old block position with '.'
+          map.map(pos1.x + row).patch(pos1.y + col, Array('X'), 1)          // replace char with 'X' at new block position
+          map.map(pos1.x + 2 * row).patch(pos1.y + 2 * col, Array('X'), 1)  // replace char with 'X' at new block position
+          printMap(map)
+
+          playMove(inputPlayerMove, Block(Position(pos1.x + row, pos1.y + col), Some(Position(pos1.x + 2 * row, pos1.y + 2 * col))), map)
+        }
       case Block(pos1, Some(pos2)) if pos1.x == pos2.x =>
-        if (map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') false
+        if (map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-')
+          "Fail"
+        else if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-') ""
         else ""
       case Block(pos1, Some(pos2)) if pos1.x != pos2.x =>
-        if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') false
+        if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-')
+          "Fail"
+        else if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-') ""
         else ""
     }
   }
