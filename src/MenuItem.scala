@@ -1,0 +1,3 @@
+trait MenuItem {
+  def job()
+}
