@@ -19,7 +19,7 @@ object Map {
       Some(new Map(map))
     }
     catch {
-      case Exception => None
+      case _: Exception => None
     }
   }
 }

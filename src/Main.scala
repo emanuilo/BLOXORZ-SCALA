@@ -27,7 +27,10 @@ object Main {
         val map = getMap(inputMapNumber(), maps)
         map match {
           case None => println("Pogresan unos!")
-          case Some(_map) => println(playMove(inputPlayerMove, initBlockPosition(_map), _map))
+          case Some(_map) =>
+            val copyMap = Map(_map.map.map(_.clone()))
+            println(playMove(inputPlayerMove, initBlockPosition(copyMap), copyMap))
+          
         }
       case 3 =>
       case 4 =>
@@ -37,26 +40,86 @@ object Main {
     if(input != 4) main(args)
   }
 
-//  Maps.printMaps()
-//  println("Izaberi mapu: ")
-//  val mapNumber = StdIn.readInt()
-//  val map = Maps.getMap(mapNumber)
-//  map match {
-//    case None => println("Pogresan unos!")
-//    case Some(x) =>
-//  }
+  def playMove(direction: Char, block: Block, map: Map): String = {
+    val row_col = getCoordsTuple(direction)
+    if (row_col.isEmpty) {
+      println("Pogresna komanda!")
+      return playMove(inputPlayerMove, block, map)
+    }
+    val row = row_col.get._1
+    val col = row_col.get._2
+    val finishPos = getFinishPosition(map)
 
-  def initBlockPosition(map: Map): Block = {
-    (for ((line, lineIndex) <- map.map.zipWithIndex; (ch, chIndex) <- line.zipWithIndex if ch == 'S')
-      yield Block(Position(lineIndex, chIndex), None)).head
+    block match {
+      case Block(pos1, None) => // block is standing upright
+        if ( map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-' ||  // game over if block gets out of the map
+          map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos1.x + 2 * row)(pos1.y) == '-' )
+          "Fail"
+        else {
+          map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with 'o'
+          map.map(pos1.x + row)(pos1.y + col) = 'X'                               // replace char with 'X' at new block position
+          map.map(pos1.x + 2 * row)(pos1.y + 2 * col) = 'X'                       // replace char with 'X' at new block position
+          map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish position if it's been overwritten
+          printMap(map)
+
+          val newBlock = if(row == -1 || col == -1)  // sorting which position is first in Block object
+            Block(Position(pos1.x + 2 * row, pos1.y + 2 * col), Some(Position(pos1.x + row, pos1.y + col)))
+          else
+            Block(Position(pos1.x + row, pos1.y + col), Some(Position(pos1.x + 2 * row, pos1.y + 2 * col)))
+
+          playMove(inputPlayerMove, newBlock, map)
+        }
+      case Block(pos1, Some(pos2)) if pos1.x == pos2.x => // block is lying horizontally
+        if (map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
+          "Fail"
+        else if (map.map(pos1.x)(pos1.y + col) == 'T' && col == -1 || map.map(pos2.x)(pos2.y + col) == 'T' && col == 1) "Win"
+        else {
+          map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
+          if(col == -1)
+            map.map(pos1.x + row)(pos1.y + col) = 'X'                             // replace char with 'X' at new block position
+          else
+            map.map(pos2.x + row)(pos2.y + col) = 'X'                             // replace char with 'X' at new block position
+          if (row != 0) map.map(pos1.x + row)(pos1.y) = 'X'                       // replace char with 'X' at new block position
+          map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish if it's been overwritten
+          printMap(map)
+
+          val newBlock = if (col == -1) Block(Position(pos1.x, pos1.y + col), None) // sorting which position is first in Block object
+            else if (col == 1) Block(Position(pos2.x, pos2.y + col), None)
+            else Block(Position(pos1.x + row, pos1.y), Some(Position(pos2.x + row, pos2.y)))
+
+          playMove(inputPlayerMove, newBlock, map)
+        }
+      case Block(pos1, Some(pos2)) if pos1.x != pos2.x => // block is lying vertically
+        if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
+          "Fail"
+        else if (map.map(pos1.x + row)(pos1.y) == 'T' && row == -1 || map.map(pos2.x + row)(pos2.y) == 'T' && row == 1) "Win"
+        else {
+          map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
+          map.map(pos2.x) = map.map(pos2.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
+          if (row == -1)
+            map.map(pos1.x + row)(pos1.y + col) = 'X'                             // replace char with 'X' at new block position
+          else
+            map.map(pos2.x + row)(pos2.y + col) = 'X'                             // replace char with 'X' at new block position
+          if (col != 0) map.map(pos1.x)(pos1.y + col) = 'X'                       // replace char with 'X' at new block position
+          map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish if it's been overwritten
+          printMap(map)
+
+          val newBlock = if (row == 1) Block(Position(pos2.x + row, pos2.y), None) // sorting which position is first in Block object
+            else if (row == -1) Block(Position(pos1.x + row, pos1.y), None)
+            else Block(Position(pos1.x, pos1.y + col), Some(Position(pos2.x, pos2.y + col)))
+
+          playMove(inputPlayerMove, newBlock, map)
+        }
+    }
   }
 
-  def getCoordsTuple(ch: Char): (Int, Int) = {
+  def getCoordsTuple(ch: Char): Option[(Int, Int)] = {
     ch match {
-      case 'r' => (0, 1)
-      case 'l' => (0, -1)
-      case 'd' => (1, 0)
-      case 'u' => (-1, 0)
+      case 'r' => Some((0, 1))
+      case 'l' => Some((0, -1))
+      case 'd' => Some((1, 0))
+      case 'u' => Some((-1, 0))
+      case _ => None
     }
   }
 
@@ -65,35 +128,9 @@ object Main {
     println("\n")
   }
 
-  def playMove(direction: Char, block: Block, map: Map): String = {
-    val row_col = getCoordsTuple(direction)
-    val row = row_col._1
-    val col = row_col._2
-
-    block match {
-      case Block(pos1, None) =>
-        if ( map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-' ||
-          map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos1.x + 2 * row)(pos1.y) == '-' )
-          "Fail"
-        else {
-          map.map(pos1.x).map(ch => if (ch == 'X') '.' else ch)             // replace old block position with '.'
-          map.map(pos1.x + row).patch(pos1.y + col, Array('X'), 1)          // replace char with 'X' at new block position
-          map.map(pos1.x + 2 * row).patch(pos1.y + 2 * col, Array('X'), 1)  // replace char with 'X' at new block position
-          printMap(map)
-
-          playMove(inputPlayerMove, Block(Position(pos1.x + row, pos1.y + col), Some(Position(pos1.x + 2 * row, pos1.y + 2 * col))), map)
-        }
-      case Block(pos1, Some(pos2)) if pos1.x == pos2.x =>
-        if (map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-')
-          "Fail"
-        else if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-') ""
-        else ""
-      case Block(pos1, Some(pos2)) if pos1.x != pos2.x =>
-        if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-')
-          "Fail"
-        else if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-') ""
-        else ""
-    }
+  def getFinishPosition(map: Map): (Int, Int) = {
+    (for ((line, lineIndex) <- map.map.zipWithIndex; (ch, chIndex) <- line.zipWithIndex if ch == 'T')
+      yield (lineIndex, chIndex)).head
   }
 
   def inputPlayerMove: Char = {
@@ -101,11 +138,16 @@ object Main {
     StdIn.readChar()
   }
 
+  def initBlockPosition(map: Map): Block = {
+    (for ((line, lineIndex) <- map.map.zipWithIndex; (ch, chIndex) <- line.zipWithIndex if ch == 'S')
+      yield Block(Position(lineIndex, chIndex), None)).head
+  }
+
   def getMap(number: Int, list: List[Map]): Option[Map] = {
     list match {
       case List() => None
-      case h :: t if number > 1 => getMap(number - 1, t)
-      case h :: t if number == 1 => Some(h)
+      case h :: t if number > 0 => getMap(number - 1, t)
+      case h :: t if number == 0 => Some(h)
     }
   }
 
@@ -132,7 +174,7 @@ object Main {
       Some(Map(map))
     }
     catch {
-      case Exception => None
+      case _: Exception => None
     }
   }
 
