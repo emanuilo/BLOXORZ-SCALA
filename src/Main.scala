@@ -10,6 +10,15 @@ object Main {
     "4. Kraj \n" +
     "Uneti izbor: "
 
+  val mapCreating: String = "1. Uklanjanje zadate ploce sa ivice terena \n" +
+    "2. Dodavanje ploce na zadatu poziciju na ivici terena \n" +
+    "3. Zamena obicne ploce na zadatoj poziciji specijalnom \n" +
+    "4. Zamena specijalne ploce na zadatoj poziciji obicnom \n" +
+    "5. Postavljanje startne pozicije na zadato polje \n" +
+    "6. Postavljanje ciljne pozicije na zadato polje \n" +
+    "7. Pravljenje imenovane kompozitne operacije \n" +
+    "8. "
+
   case class Map(map: ArrayBuffer[Array[Char]])
   case class Block(position1: Position, position2: Option[Position])
   case class Position(x: Int, y: Int)
@@ -30,9 +39,9 @@ object Main {
           case Some(_map) =>
             val copyMap = Map(_map.map.map(_.clone()))
             println(playMove(inputPlayerMove, initBlockPosition(copyMap), copyMap))
-          
         }
       case 3 =>
+
       case 4 =>
       case _ => "Pogresan unos!"
     }
