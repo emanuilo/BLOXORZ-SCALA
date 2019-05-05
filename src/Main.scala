@@ -1,5 +1,8 @@
+import Main.menu
+
 import scala.collection.mutable.ArrayBuffer
 import scala.io.{Source, StdIn}
+import MapOperations._
 
 object Main {
   var maps: List[Map] = List()
@@ -10,20 +13,88 @@ object Main {
     "4. Kraj \n" +
     "Uneti izbor: "
 
-  val mapCreating: String = "1. Uklanjanje zadate ploce sa ivice terena \n" +
+  val mapCreatingMenu: String = "1. Uklanjanje zadate ploce sa ivice terena \n" +
     "2. Dodavanje ploce na zadatu poziciju na ivici terena \n" +
     "3. Zamena obicne ploce na zadatoj poziciji specijalnom \n" +
     "4. Zamena specijalne ploce na zadatoj poziciji obicnom \n" +
     "5. Postavljanje startne pozicije na zadato polje \n" +
     "6. Postavljanje ciljne pozicije na zadato polje \n" +
     "7. Pravljenje imenovane kompozitne operacije \n" +
-    "8. "
+    "8. Inverzija \n" +
+    "9. Zamena \n" +
+    "10. Filtriranje \n" +
+    "11. Formiranje imenovane sekvence operaicija \n" +
+    "12. Sacuvaj mapu \n" +
+    "Uneti izbor: \n"
 
   case class Map(map: ArrayBuffer[Array[Char]])
   case class Block(position1: Position, position2: Option[Position])
   case class Position(x: Int, y: Int)
+  trait Menu {
+    def _menu()
+  }
+  class MainMenu extends Menu {
+    override def _menu(): Unit = {
+      println(menuStr)
+
+      StdIn.readChar() match {
+        case '1' =>
+          readMapFromFile(getMapFilePath) match {
+            case None => println("Neuspesno ucitavanje mape!")
+            case Some(x) => maps = x :: maps
+          }
+        case '2' =>
+          val map = getMap(inputMapNumber(), maps)
+          map match {
+            case None => println("Pogresan unos!")
+            case Some(_map) =>
+              val copyMap = Map(_map.map.map(_.clone()))
+              println(playMove(inputPlayerMove, initBlockPosition(copyMap), copyMap))
+          }
+        case '3' => menuStack = new MapOpsMenu(getMap(inputMapNumber(), maps)) :: menuStack
+        case '4' =>
+        case _ => println("Pogresan unos!")
+      }
+    }
+  }
+  class MapOpsMenu(var map: Option[Map]) extends Menu {
+    override def _menu(): Unit = {
+      println(mapCreatingMenu)
+      StdIn.readLine() match {
+        case "1" => removeEdgePlate(map, inputRowAndCol()) match {
+          case Some(_map) => map = Some(_map)
+          case None => println("Greska!")
+        }
+        case "2" => addEdgePlate(map, inputRowAndCol()) match {
+          case Some(_map) => map = Some(_map)
+          case None => println("Greska!")
+        }
+        case "3" =>
+        case "4" =>
+        case "5" =>
+        case "6" =>
+        case "7" =>
+        case "8" =>
+        case "9" =>
+        case "9" =>
+        case "11" =>
+        case "12" =>
+          maps = map.get :: maps
+          menuStack = menuStack.tail
+        case _ =>
+
+      }
+    }
+  }
+
+  var menuStack: List[Menu] = List(new MainMenu)
 
   def main(args: Array[String]): Unit = {
+    menuStack.head._menu()
+    if(menuStack.nonEmpty) main(args)
+  }
+
+  def main2(args: Array[String]): Unit = {
     val input = menu
 
     input match {
@@ -41,6 +112,31 @@ object Main {
             println(playMove(inputPlayerMove, initBlockPosition(copyMap), copyMap))
         }
       case 3 =>
+        val map = getMap(inputMapNumber(), maps)
+        //while()
+        println(mapCreatingMenu)
+        inputMapOperation() match {
+          case Some(1) => removeEdgePlate(getMap(inputMapNumber(), maps), inputRowAndCol()) match {
+            case Some(_map) => maps = _map :: maps
+            case None => println("Greska!")
+          }
+          case Some(2) => addEdgePlate(getMap(inputMapNumber(), maps), inputRowAndCol()) match {
+            case Some(_map) => maps = _map :: maps
+            case None => println("Greska!")
+          }
+          case Some(3) =>
+          case Some(4) =>
+          case Some(5) =>
+          case Some(6) =>
+          case Some(7) =>
+          case Some(8) =>
+          case Some(9) =>
+          case Some(10) =>
+          case Some(11) =>
+          case Some(12) =>
+          case None =>
+
+        }
 
       case 4 =>
       case _ => "Pogresan unos!"
@@ -194,7 +290,7 @@ object Main {
 
   def menu: Int = {
     println(menuStr)
-    scala.io.StdIn.readInt()
+    StdIn.readInt()
   }
 
 }
