@@ -79,11 +79,11 @@ object Main {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "3" => replaceBasicWithSpec(map, inputRowAndCol()) match {
+        case "3" => replaceBasicToSpec(map, inputRowAndCol()) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "4" => replaceSpecWithBasic(map, inputRowAndCol()) match {
+        case "4" => replaceSpecToBasic(map, inputRowAndCol()) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
@@ -96,11 +96,14 @@ object Main {
           case None => println("Greska!")
         }
         case "7" => //kompozitna
-        case "8" => inversion(map) match {
+        case "8" => inverseStartFinish(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "9" => //zamena
+        case "9" => replaceAllSpecToBasic(map) match {
+          case Some(_map) => map = Some(_map)
+          case None => println("Greska!")
+        }
         case "10" => //filtriranje
         case "11" => //sekvenca
         case "12" =>

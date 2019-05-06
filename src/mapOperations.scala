@@ -76,7 +76,7 @@ object MapOperations {
       None
   }
 
-  def replaceBasicWithSpec(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+  def replaceBasicToSpec(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
     if(map.isEmpty) return None
     if(target.isEmpty) return None
     val row = target.get._1
@@ -92,7 +92,7 @@ object MapOperations {
       None
   }
 
-  def replaceSpecWithBasic(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+  def replaceSpecToBasic(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
     if(map.isEmpty) return None
     val newMap = Map(map.get.map.map(_.clone()))
 
@@ -128,7 +128,7 @@ object MapOperations {
     }
   }
 
-  def inversion(map: Option[Map]): Option[Map] = {
+  def inverseStartFinish(map: Option[Map]): Option[Map] = {
     if(map.isEmpty) return None
 
     setPosition(
@@ -142,6 +142,18 @@ object MapOperations {
       getStartPosition(map.get),           // start position because we don't want to rewrite old position, now there is finish position
       finishChar
     )
+  }
+
+  def replaceAllSpecToBasic(map: Option[Map]): Option[Map] = {
+    if(map.isEmpty) return None
+    var newMap: Option[Map] = Some(Map(map.get.map.map(_.clone())))
+
+    for(row <- 1 until map.get.map.size - 1;
+        col <- 1 until map.get.map.head.length - 1
+        if map.get.map(row)(col) == specPlateChar)
+      newMap = replaceSpecToBasic(newMap, Some(row, col))
+
+    newMap
   }
 }
 
