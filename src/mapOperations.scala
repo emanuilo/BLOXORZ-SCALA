@@ -1,5 +1,5 @@
 
-import Main.Map
+import Main._
 import scala.io.StdIn
 
 object MapOperations {
@@ -23,26 +23,29 @@ object MapOperations {
     }
   }
 
-  def removeEdgePlate(_map: Option[Map], row_col: Option[(Int, Int)]): Option[Map] = {
-    if(_map.isEmpty) return None
-    if(row_col.isEmpty) return None
-    val map = _map.get
-    val row = row_col.get._1
-    val col = row_col.get._2
-    val newMap = Map(map.map.map(_.clone()))
+  def checkIndices(row: Int, col: Int, map: Map): Boolean = {
+      row < map.map.size - 1 &&
+      col < map.map(0).length - 1 &&
+      row > 0 &&
+      col > 0
+  }
 
-    if (row < map.map.size - 1 &&
-        row > 0 &&
-        col < map.map(0).length - 1 &&
-        col > 0 && ((
-        newMap.map(row)(col - 1) == '-' ||
-        newMap.map(row)(col + 1) == '-' ||
-        newMap.map(row - 1)(col) == '-' ||
-        newMap.map(row + 1)(col) == '-' ) && !(
-        newMap.map(row)(col - 1) == '-' &&
-        newMap.map(row)(col + 1) == '-' &&
-        newMap.map(row - 1)(col) == '-' &&
-        newMap.map(row + 1)(col) == '-' ))) {
+  def removeEdgePlate(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+    if(map.isEmpty) return None
+    if(target.isEmpty) return None
+    val row = target.get._1
+    val col = target.get._2
+    val newMap = Map(map.get.map.map(_.clone()))
+
+    if ( checkIndices(row, col, newMap) && ((
+         newMap.map(row)(col - 1) == noPlateChar ||
+         newMap.map(row)(col + 1) == noPlateChar ||
+         newMap.map(row - 1)(col) == noPlateChar ||
+         newMap.map(row + 1)(col) == noPlateChar ) && !(
+         newMap.map(row)(col - 1) == noPlateChar &&
+         newMap.map(row)(col + 1) == noPlateChar &&
+         newMap.map(row - 1)(col) == noPlateChar &&
+         newMap.map(row + 1)(col) == noPlateChar )) ) {
       newMap.map(row)(col) = '-'
       Some(newMap)
     }
@@ -50,26 +53,22 @@ object MapOperations {
       None
   }
 
-  def addEdgePlate(_map: Option[Map], row_col: Option[(Int, Int)]): Option[Map] = {
-    if(_map.isEmpty) return None
-    if(row_col.isEmpty) return None
-    val map = _map.get
-    val row = row_col.get._1
-    val col = row_col.get._2
-    val newMap = Map(map.map.map(_.clone()))
+  def addEdgePlate(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+    if(map.isEmpty) return None
+    if(target.isEmpty) return None
+    val row = target.get._1
+    val col = target.get._2
+    val newMap = Map(map.get.map.map(_.clone()))
 
-    if (row < map.map.size -1 &&
-        row > 0 &&
-        col < map.map(0).length - 1 &&
-        col > 0 && ((                            // at least one surrounding plate
-        newMap.map(row)(col - 1) != '-' ||
-        newMap.map(row)(col + 1) != '-' ||
-        newMap.map(row - 1)(col) != '-' ||
-        newMap.map(row + 1)(col) != '-' ) && !(   // but not all of them
-        newMap.map(row)(col - 1) != '-' &&
-        newMap.map(row)(col + 1) != '-' &&
-        newMap.map(row - 1)(col) != '-' &&
-        newMap.map(row + 1)(col) != '-' ))) {
+    if ( checkIndices(row, col, newMap) && ((                            // at least one surrounding plate
+         newMap.map(row)(col - 1) != noPlateChar ||
+         newMap.map(row)(col + 1) != noPlateChar ||
+         newMap.map(row - 1)(col) != noPlateChar ||
+         newMap.map(row + 1)(col) != noPlateChar ) && !(   // but not all of them
+         newMap.map(row)(col - 1) != noPlateChar &&
+         newMap.map(row)(col + 1) != noPlateChar &&
+         newMap.map(row - 1)(col) != noPlateChar &&
+         newMap.map(row + 1)(col) != noPlateChar )) ) {
       newMap.map(row)(col) = 'o'
       Some(newMap)
     }
@@ -77,24 +76,72 @@ object MapOperations {
       None
   }
 
-  def replaceBasicWithSpec(_map: Option[Map], row_col: Option[(Int, Int)]): Option[Map] = {
-    if(_map.isEmpty) return None
-    if(row_col.isEmpty) return None
-    val map = _map.get
-    val row = row_col.get._1
-    val col = row_col.get._2
-    val newMap = Map(map.map.map(_.clone()))
+  def replaceBasicWithSpec(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+    if(map.isEmpty) return None
+    if(target.isEmpty) return None
+    val row = target.get._1
+    val col = target.get._2
+    val newMap = Map(map.get.map.map(_.clone()))
 
-    if (row < map.map.size -1 &&
-        row > 0 &&
-        col < map.map(0).length - 1 &&
-        col > 0 &&
-        newMap.map(row)(col) == 'o' ) {
-      newMap.map(row)(col) = '.'
+    if ( checkIndices(row, col, newMap) &&
+         newMap.map(row)(col) == plateChar ) {
+      newMap.map(row)(col) = specPlateChar
       Some(newMap)
     }
     else
       None
+  }
+
+  def replaceSpecWithBasic(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+    if(map.isEmpty) return None
+    val newMap = Map(map.get.map.map(_.clone()))
+
+    target match {
+      case Some((row, col)) =>
+        if ( checkIndices(row, col, newMap) &&
+             newMap.map(row)(col) == specPlateChar ) {
+          newMap.map(row)(col) = plateChar
+          Some(newMap)
+        }
+        else None
+      case None => None
+    }
+  }
+
+  def setPosition(map: Option[Map], target: Option[(Int, Int)], oldPosition: (Int, Int), char: Char): Option[Map] = {
+    if(map.isEmpty) return None
+    val newMap = Map(map.get.map.map(_.clone()))
+
+    target match {
+      case Some((row, col)) =>
+        if( checkIndices(row, col, newMap) && !(
+            newMap.map(row)(col - 1) == noPlateChar &&
+            newMap.map(row)(col + 1) == noPlateChar &&
+            newMap.map(row - 1)(col) == noPlateChar &&
+            newMap.map(row + 1)(col) == noPlateChar) ) {
+          newMap.map(oldPosition._1)(oldPosition._2) = plateChar
+          newMap.map(row)(col) = char
+          Some(newMap)
+        }
+        else None
+      case None => None
+    }
+  }
+
+  def inversion(map: Option[Map]): Option[Map] = {
+    if(map.isEmpty) return None
+
+    setPosition(
+      setPosition(
+        map,
+        Some(getFinishPosition(map.get)),
+        getStartPosition(map.get),
+        startChar
+      ),
+      Some(getStartPosition(map.get)),
+      getStartPosition(map.get),           // start position because we don't want to rewrite old position, now there is finish position
+      finishChar
+    )
   }
 }
 

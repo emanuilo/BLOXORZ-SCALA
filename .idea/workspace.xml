@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8d24897c-794c-424f-a3b9-d7f99ff7fc15" name="Default Changelist" comment="before changing main method; new menu system">
+    <list default="true" id="8d24897c-794c-424f-a3b9-d7f99ff7fc15" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Game$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Game.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Main$.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekat/Main$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekat/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Map$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Map.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Maps$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Maps.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/MenuItem.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/mapOperations.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapOperations.scala" afterDir="false" />
     </list>
@@ -15,23 +24,55 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Main.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-63">
-              <caret line="80" column="20" lean-forward="true" selection-start-line="80" selection-start-column="20" selection-end-line="80" selection-end-column="20" />
+            <state relative-caret-position="185">
+              <caret line="207" selection-start-line="207" selection-end-line="207" />
               <folding>
-                <element signature="e#0#16#0" expanded="true" />
+                <element signature="e#1178#1198#1" />
+                <element signature="e#1230#2032#0" />
+                <element signature="e#1236#2028#0" />
+                <element signature="e#1295#2022#0" />
+                <element signature="e#1350#1509#0" />
+                <element signature="e#1350#1509#1" />
+                <element signature="e#1540#1839#0" />
+                <element signature="e#1591#1839#0" />
+                <element signature="e#1699#1827#0" />
+                <element signature="e#2206#2350#1" />
+                <element signature="e#2371#2512#1" />
+                <element signature="e#2703#2852#1" />
+                <element signature="e#2873#2958#1" />
+                <element signature="e#3096#3241#1" />
+                <element signature="e#3173#3280#0" />
+                <element signature="e#3419#3512#0" />
+                <element signature="e#3619#7916#0" />
+                <element signature="e#5138#6488#0" />
+                <element signature="e#5278#6342#0" />
+                <element signature="e#6584#8056#0" />
+                <element signature="e#6724#7910#0" />
+                <element signature="e#7924#8148#0" />
+                <element signature="e#7981#8144#0" />
+                <element signature="e#8152#8250#0" />
+                <element signature="e#9008#9153#0" />
+                <element signature="e#9195#9394#0" />
+                <element signature="e#9259#9388#0" />
+                <element signature="e#9634#9675#0" />
+                <element signature="e#9760#9846#0" />
+                <element signature="e#9850#9912#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/mapOperations.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="4" column="7" selection-start-line="4" selection-start-column="7" selection-end-line="4" selection-end-column="7" />
+            <state relative-caret-position="335">
+              <caret line="132" lean-forward="true" selection-start-line="132" selection-end-line="132" />
+              <folding>
+                <element signature="e#1#16#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -62,8 +103,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="485" />
-    <option name="y" value="-20" />
+    <option name="x" value="883" />
+    <option name="y" value="-22" />
     <option name="width" value="980" />
     <option name="height" value="1040" />
   </component>
@@ -73,6 +114,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -90,11 +132,10 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1557006501815" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1557146139149" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RunDashboard">
@@ -155,7 +196,14 @@
       <option name="project" value="LOCAL" />
       <updated>1556988449633</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="before changing main method; new menu system">
+      <created>1557075118425</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1557075118425</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TodoView">
@@ -171,7 +219,7 @@
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15100671" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15302013" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -188,8 +236,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" weight="0.3286119" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="9" />
-      <window_info active="true" anchor="bottom" id="Messages" order="10" visible="true" weight="0.3286119" />
-      <window_info anchor="right" x="0" y="0" width="337" height="638" id="Documentation" side_tool="true" weight="0.3295302" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.3286119" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -198,6 +245,7 @@
       <window_info anchor="right" id="Theme Preview" order="5" />
       <window_info anchor="right" id="Capture Analysis" order="6" />
       <window_info anchor="right" id="Palette&#9;" order="7" />
+      <window_info anchor="right" x="0" y="0" width="337" height="638" id="Documentation" order="8" side_tool="true" weight="0.3295302" />
     </layout>
   </component>
   <component name="VcsManagerConfiguration">
@@ -210,12 +258,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/mapOperations.scala</url>
-          <line>26</line>
-          <properties />
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="scala-line">
           <url>file://$PROJECT_DIR$/src/mapOperations.scala</url>
           <line>14</line>
@@ -237,20 +279,55 @@
     <entry file="file://$PROJECT_DIR$/src/Maps.scala" />
     <entry file="file://$PROJECT_DIR$/src/Game.scala" />
     <entry file="file://$PROJECT_DIR$/src/MenuItem.scala" />
-    <entry file="file://$PROJECT_DIR$/src/Main.scala">
+    <entry file="file://$PROJECT_DIR$/map1.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/mapOperations.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-63">
-          <caret line="80" column="20" lean-forward="true" selection-start-line="80" selection-start-column="20" selection-end-line="80" selection-end-column="20" />
+        <state relative-caret-position="335">
+          <caret line="132" lean-forward="true" selection-start-line="132" selection-end-line="132" />
           <folding>
-            <element signature="e#0#16#0" expanded="true" />
+            <element signature="e#1#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/mapOperations.scala">
+    <entry file="file://$PROJECT_DIR$/src/Main.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="4" column="7" selection-start-line="4" selection-start-column="7" selection-end-line="4" selection-end-column="7" />
+        <state relative-caret-position="185">
+          <caret line="207" selection-start-line="207" selection-end-line="207" />
+          <folding>
+            <element signature="e#1178#1198#1" />
+            <element signature="e#1230#2032#0" />
+            <element signature="e#1236#2028#0" />
+            <element signature="e#1295#2022#0" />
+            <element signature="e#1350#1509#0" />
+            <element signature="e#1350#1509#1" />
+            <element signature="e#1540#1839#0" />
+            <element signature="e#1591#1839#0" />
+            <element signature="e#1699#1827#0" />
+            <element signature="e#2206#2350#1" />
+            <element signature="e#2371#2512#1" />
+            <element signature="e#2703#2852#1" />
+            <element signature="e#2873#2958#1" />
+            <element signature="e#3096#3241#1" />
+            <element signature="e#3173#3280#0" />
+            <element signature="e#3419#3512#0" />
+            <element signature="e#3619#7916#0" />
+            <element signature="e#5138#6488#0" />
+            <element signature="e#5278#6342#0" />
+            <element signature="e#6584#8056#0" />
+            <element signature="e#6724#7910#0" />
+            <element signature="e#7924#8148#0" />
+            <element signature="e#7981#8144#0" />
+            <element signature="e#8152#8250#0" />
+            <element signature="e#9008#9153#0" />
+            <element signature="e#9195#9394#0" />
+            <element signature="e#9259#9388#0" />
+            <element signature="e#9634#9675#0" />
+            <element signature="e#9760#9846#0" />
+            <element signature="e#9850#9912#0" />
+          </folding>
         </state>
       </provider>
     </entry>

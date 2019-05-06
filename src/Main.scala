@@ -5,8 +5,6 @@ import scala.io.{Source, StdIn}
 import MapOperations._
 
 object Main {
-  var maps: List[Map] = List()
-
   val menuStr: String = "1. Ucitaj mapu \n" +
     "2. Zapocni igru \n" +
     "3. Kreiranje mapa \n" +
@@ -25,18 +23,29 @@ object Main {
     "10. Filtriranje \n" +
     "11. Formiranje imenovane sekvence operaicija \n" +
     "12. Sacuvaj mapu \n" +
+    "13. Nazad \n" +
     "Uneti izbor: \n"
+
+  val startChar: Char = 'S'
+  val finishChar: Char = 'T'
+  val plateChar: Char = 'o'
+  val specPlateChar: Char = '.'
+  val noPlateChar: Char = '-'
+
+  var maps: List[Map] = List()
+  var menuStack: List[Menu] = List(new MainMenu)
 
   case class Map(map: ArrayBuffer[Array[Char]])
   case class Block(position1: Position, position2: Option[Position])
   case class Position(x: Int, y: Int)
-  trait Menu {
-    def _menu()
-  }
-  class MainMenu extends Menu {
-    override def _menu(): Unit = {
-      println(menuStr)
 
+  trait Menu {
+    def menu()
+  }
+
+  class MainMenu extends Menu {
+    override def menu(): Unit = {
+      println(menuStr)
       StdIn.readChar() match {
         case '1' =>
           readMapFromFile(getMapFilePath) match {
@@ -52,13 +61,14 @@ object Main {
               println(playMove(inputPlayerMove, initBlockPosition(copyMap), copyMap))
           }
         case '3' => menuStack = new MapOpsMenu(getMap(inputMapNumber(), maps)) :: menuStack
-        case '4' =>
+        case '4' => menuStack = List()
         case _ => println("Pogresan unos!")
       }
     }
   }
+
   class MapOpsMenu(var map: Option[Map]) extends Menu {
-    override def _menu(): Unit = {
+    override def menu(): Unit = {
       println(mapCreatingMenu)
       StdIn.readLine() match {
         case "1" => removeEdgePlate(map, inputRowAndCol()) match {
@@ -69,80 +79,42 @@ object Main {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "3" =>
-        case "4" =>
-        case "5" =>
-        case "6" =>
-        case "7" =>
-        case "8" =>
-        case "9" =>
-        case "9" =>
-        case "11" =>
+        case "3" => replaceBasicWithSpec(map, inputRowAndCol()) match {
+          case Some(_map) => map = Some(_map)
+          case None => println("Greska!")
+        }
+        case "4" => replaceSpecWithBasic(map, inputRowAndCol()) match {
+          case Some(_map) => map = Some(_map)
+          case None => println("Greska!")
+        }
+        case "5" => setPosition(map, inputRowAndCol(), getStartPosition(map.get), startChar) match {
+          case Some(_map) => map = Some(_map)
+          case None => println("Greska!")
+        }
+        case "6" => setPosition(map, inputRowAndCol(), getFinishPosition(map.get), finishChar) match {
+          case Some(_map) => map = Some(_map)
+          case None => println("Greska!")
+        }
+        case "7" => //kompozitna
+        case "8" => inversion(map) match {
+          case Some(_map) => map = Some(_map)
+          case None => println("Greska!")
+        }
+        case "9" => //zamena
+        case "10" => //filtriranje
+        case "11" => //sekvenca
         case "12" =>
           maps = map.get :: maps
           menuStack = menuStack.tail
+        case "13" => menuStack = menuStack.tail
         case _ =>
-
       }
     }
   }
 
-  var menuStack: List[Menu] = List(new MainMenu)
-
   def main(args: Array[String]): Unit = {
-    menuStack.head._menu()
+    menuStack.head.menu()
     if(menuStack.nonEmpty) main(args)
-  }
-
-  def main2(args: Array[String]): Unit = {
-    val input = menu
-
-    input match {
-      case 1 =>
-        readMapFromFile(getMapFilePath) match {
-          case None => println("Neuspesno ucitavanje mape!")
-          case Some(x) => maps = x :: maps
-        }
-      case 2 =>
-        val map = getMap(inputMapNumber(), maps)
-        map match {
-          case None => println("Pogresan unos!")
-          case Some(_map) =>
-            val copyMap = Map(_map.map.map(_.clone()))
-            println(playMove(inputPlayerMove, initBlockPosition(copyMap), copyMap))
-        }
-      case 3 =>
-        val map = getMap(inputMapNumber(), maps)
-        //while()
-        println(mapCreatingMenu)
-        inputMapOperation() match {
-          case Some(1) => removeEdgePlate(getMap(inputMapNumber(), maps), inputRowAndCol()) match {
-            case Some(_map) => maps = _map :: maps
-            case None => println("Greska!")
-          }
-          case Some(2) => addEdgePlate(getMap(inputMapNumber(), maps), inputRowAndCol()) match {
-            case Some(_map) => maps = _map :: maps
-            case None => println("Greska!")
-          }
-          case Some(3) =>
-          case Some(4) =>
-          case Some(5) =>
-          case Some(6) =>
-          case Some(7) =>
-          case Some(8) =>
-          case Some(9) =>
-          case Some(10) =>
-          case Some(11) =>
-          case Some(12) =>
-          case None =>
-
-        }
-
-      case 4 =>
-      case _ => "Pogresan unos!"
-    }
-
-    if(input != 4) main(args)
   }
 
   def playMove(direction: Char, block: Block, map: Map): String = {
@@ -233,8 +205,12 @@ object Main {
     println("\n")
   }
 
-  def getFinishPosition(map: Map): (Int, Int) = {
-    (for ((line, lineIndex) <- map.map.zipWithIndex; (ch, chIndex) <- line.zipWithIndex if ch == 'T')
+  def getFinishPosition = getPosition(finishChar)
+
+  def getStartPosition = getPosition(startChar)
+
+  def getPosition(char: Char): Map => (Int, Int) = {
+    map => (for ((line, lineIndex) <- map.map.zipWithIndex; (ch, chIndex) <- line.zipWithIndex if ch == char)
       yield (lineIndex, chIndex)).head
   }
 
