@@ -10,13 +10,23 @@ object MapOperations {
   }
 
   def inputRowAndCol(): Option[(Int, Int)] = {
-    println("Uneti poziciju u formatu 'red kolona' \n")
+    println("Uneti poziciju u formatu 'red kolona': \n")
     val line = StdIn.readLine()
     val row_col = line.split(" ")
     try{
       if(row_col.size == 2)
         Some((Integer.parseInt(row_col(0)), Integer.parseInt(row_col(1))))
       else None
+    }
+    catch {
+      case e: NumberFormatException => None
+    }
+  }
+
+  def inputDistance(): Option[Int] = {
+    println("Uneti distancu: \n")
+    try{
+      Option(StdIn.readInt())
     }
     catch {
       case e: NumberFormatException => None
@@ -139,7 +149,7 @@ object MapOperations {
         startChar
       ),
       Some(getStartPosition(map.get)),
-      getStartPosition(map.get),           // start position because we don't want to rewrite old position, now there is finish position
+      getStartPosition(map.get),           // start position because we don't want to rewrite the old position, now there is the finish position
       finishChar
     )
   }
@@ -154,6 +164,22 @@ object MapOperations {
       newMap = replaceSpecToBasic(newMap, Some(row, col))
 
     newMap
+  }
+
+  def filter(_map: Option[Map], target: Option[(Int, Int)], _distance: Option[Int]): Option[Map] = {
+    (target, _distance, _map) match {
+      case (Some((row, col)), Some(distance), Some(map)) =>
+        val exist = (for{i <- row - distance to row + distance
+            if i >= 0 && i < map.map.size
+            j <- col - distance to col + distance
+            if j >= 0 && j < map.map.head.length
+            if map.map(i)(j) == specPlateChar} yield true).headOption
+        exist match {
+          case Some(_) => replaceSpecToBasic(_map, target)
+          case None => None
+        }
+      case _ => None
+    }
   }
 }
 

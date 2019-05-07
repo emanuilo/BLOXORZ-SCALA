@@ -104,7 +104,10 @@ object Main {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "10" => //filtriranje
+        case "10" => filter(map, inputRowAndCol(), inputDistance()) match {
+          case Some(_map) => map = Option(_map)
+          case None => println("Greska!")
+        }
         case "11" => //sekvenca
         case "12" =>
           maps = map.get :: maps
