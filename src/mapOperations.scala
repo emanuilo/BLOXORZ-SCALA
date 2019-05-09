@@ -143,7 +143,7 @@ object MapOperations {
     if(map.isEmpty) return None
 
     setPosition(
-      getStartPosition,           // start position because we don't want to rewrite the old position, now there is the finish position
+      getStartPosition,           // start position because we don't want to rewrite the old position, now there is the start position
       finishChar
     )(
       setPosition(
@@ -169,8 +169,8 @@ object MapOperations {
     newMap
   }
 
-  def filter(_map: Option[Map], target: Option[(Int, Int)], _distance: Option[Int]): Option[Map] = {
-    (target, _distance, _map) match {
+  def filter(getDistance: () => Option[Int])(_map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+    (target, getDistance(), _map) match {
       case (Some((row, col)), Some(distance), Some(map)) =>
         val exist = (for{i <- row - distance to row + distance
             if i >= 0 && i < map.map.size
