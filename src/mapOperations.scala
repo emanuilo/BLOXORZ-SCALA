@@ -118,9 +118,10 @@ object MapOperations {
     }
   }
 
-  def setPosition(map: Option[Map], target: Option[(Int, Int)], oldPosition: (Int, Int), char: Char): Option[Map] = {
+  def setPosition(getOldPosition: Map => (Int, Int), char: Char)(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
     if(map.isEmpty) return None
     val newMap = Map(map.get.map.map(_.clone()))
+    val oldPosition = getOldPosition(newMap)
 
     target match {
       case Some((row, col)) =>
@@ -142,15 +143,17 @@ object MapOperations {
     if(map.isEmpty) return None
 
     setPosition(
-      setPosition(
-        map,
-        Some(getFinishPosition(map.get)),
-        getStartPosition(map.get),
-        startChar
-      ),
-      Some(getStartPosition(map.get)),
-      getStartPosition(map.get),           // start position because we don't want to rewrite the old position, now there is the finish position
+      getStartPosition,           // start position because we don't want to rewrite the old position, now there is the finish position
       finishChar
+    )(
+      setPosition(
+        getStartPosition,
+        startChar
+      )(
+        map,
+        Some(getFinishPosition(map.get))
+      ),
+      Some(getStartPosition(map.get))
     )
   }
 

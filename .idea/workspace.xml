@@ -3,7 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8d24897c-794c-424f-a3b9-d7f99ff7fc15" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Main$.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Projekat/Main$.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Main$.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Projekat/Main.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/mapOperations.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/mapOperations.scala" afterDir="false" />
     </list>
@@ -19,8 +20,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Main.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="389">
-              <caret line="115" column="17" lean-forward="true" selection-start-line="115" selection-start-column="17" selection-end-line="115" selection-end-column="17" />
+            <state relative-caret-position="202">
+              <caret line="44" column="33" selection-start-line="44" selection-start-column="33" selection-end-line="44" selection-end-column="33" />
+              <folding>
+                <element signature="e#0#16#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -28,8 +32,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/mapOperations.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="488">
-              <caret line="182" column="3" lean-forward="true" selection-start-line="182" selection-start-column="3" selection-end-line="182" selection-end-column="3" />
+            <state relative-caret-position="219">
+              <caret line="14" column="4" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
             </state>
           </provider>
         </entry>
@@ -60,8 +64,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="882" />
-    <option name="y" value="-23" />
+    <option name="x" value="880" />
+    <option name="y" value="-25" />
     <option name="width" value="980" />
     <option name="height" value="1040" />
   </component>
@@ -71,6 +75,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -88,7 +93,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -174,7 +178,14 @@
       <option name="project" value="LOCAL" />
       <updated>1557156793580</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="filter">
+      <created>1557227755865</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1557227755865</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TodoView">
@@ -190,7 +201,7 @@
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15503356" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1590604" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -226,19 +237,8 @@
     <MESSAGE value="before changing main method; new menu system" />
     <MESSAGE value="changed getting start and finish positions; moving start/finish positions, inversion" />
     <MESSAGE value="replaceAllSpecToBasic" />
-    <option name="LAST_COMMIT_MESSAGE" value="replaceAllSpecToBasic" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="scala-line">
-          <url>file://$PROJECT_DIR$/src/mapOperations.scala</url>
-          <line>14</line>
-          <properties />
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="filter" />
+    <option name="LAST_COMMIT_MESSAGE" value="filter" />
   </component>
   <component name="editorHistoryManager">
     <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.12.8-sources.jar!/scala/io/BufferedSource.scala">
@@ -257,15 +257,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/mapOperations.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="488">
-          <caret line="182" column="3" lean-forward="true" selection-start-line="182" selection-start-column="3" selection-end-line="182" selection-end-column="3" />
+        <state relative-caret-position="219">
+          <caret line="14" column="4" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="389">
-          <caret line="115" column="17" lean-forward="true" selection-start-line="115" selection-start-column="17" selection-end-line="115" selection-end-column="17" />
+        <state relative-caret-position="202">
+          <caret line="44" column="33" selection-start-line="44" selection-start-column="33" selection-end-line="44" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

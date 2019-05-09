@@ -4,6 +4,8 @@ import scala.collection.mutable.ArrayBuffer
 import scala.io.{Source, StdIn}
 import MapOperations._
 
+import scala.collection.mutable
+
 object Main {
   val menuStr: String = "1. Ucitaj mapu \n" +
     "2. Zapocni igru \n" +
@@ -34,6 +36,19 @@ object Main {
 
   var maps: List[Map] = List()
   var menuStack: List[Menu] = List(new MainMenu)
+  val operationList = List(
+    removeEdgePlate _,
+    addEdgePlate _,
+    replaceBasicToSpec _,
+    replaceSpecToBasic _,
+    setPosition(getStartPosition, startChar) _,
+    setPosition(getFinishPosition, finishChar) _,
+    inverseStartFinish _,
+    replaceAllSpecToBasic _,
+    filter _,
+  )
+
+  val sequencesMap: mutable.LinkedHashMap[String, List[(Option[Map], Option[(Int, Int)]) => Option[Map]]] = mutable.LinkedHashMap()
 
   case class Map(map: ArrayBuffer[Array[Char]])
   case class Block(position1: Position, position2: Option[Position])
@@ -68,6 +83,8 @@ object Main {
   }
 
   class MapOpsMenu(var map: Option[Map]) extends Menu {
+    val list = List(removeEdgePlate _, addEdgePlate _, setPosition(getFinishPosition, finishChar) _)
+
     override def menu(): Unit = {
       println(mapCreatingMenu)
       StdIn.readLine() match {
@@ -87,11 +104,11 @@ object Main {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "5" => setPosition(map, inputRowAndCol(), getStartPosition(map.get), startChar) match {
+        case "5" => setPosition(getStartPosition, startChar)(map, inputRowAndCol()) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "6" => setPosition(map, inputRowAndCol(), getFinishPosition(map.get), finishChar) match {
+        case "6" => setPosition(getFinishPosition, finishChar)(map, inputRowAndCol()) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
@@ -108,7 +125,8 @@ object Main {
           case Some(_map) => map = Option(_map)
           case None => println("Greska!")
         }
-        case "11" => //sekvenca
+        case "11" =>
+
         case "12" =>
           maps = map.get :: maps
           menuStack = menuStack.tail
@@ -121,6 +139,16 @@ object Main {
   def main(args: Array[String]): Unit = {
     menuStack.head.menu()
     if(menuStack.nonEmpty) main(args)
+  }
+
+  def inputOperationsNumbers(): String = {
+    println("Uneti redne brojeve operacija: \n")
+    StdIn.readLine()
+  }
+
+  def inputSequenceName(): String = {
+    println("Uneti ime sekvence: \n")
+    StdIn.readLine()
   }
 
   def playMove(direction: Char, block: Block, map: Map): String = {
