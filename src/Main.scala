@@ -19,14 +19,13 @@ object Main {
     "4. Zamena specijalne ploce na zadatoj poziciji obicnom \n" +
     "5. Postavljanje startne pozicije na zadato polje \n" +
     "6. Postavljanje ciljne pozicije na zadato polje \n" +
-    "7. Pravljenje imenovane kompozitne operacije \n" +
-    "8. Inverzija \n" +
-    "9. Zamena \n" +
-    "10. Filtriranje \n" +
-    "11. Formiranje imenovane sekvence operaicija \n" +
+    "7. Inverzija \n" +
+    "8. Zamena \n" +
+    "9. Filtriranje \n" +
+    "10. Formiranje imenovane sekvence operacija \n" +
+    "11. Pravljenje imenovane kompozitne operacije \n" +
     "12. Sacuvaj mapu \n" +
-    "13. Nazad \n" +
-    "Uneti izbor: \n"
+    "13. Nazad"
 
   val startChar: Char = 'S'
   val finishChar: Char = 'T'
@@ -37,26 +36,18 @@ object Main {
   var maps: List[Map] = List()
   var menuStack: List[Menu] = List(new MainMenu)
   val operationList = List(
-    removeEdgePlate _,
-    addEdgePlate _,
+    removeEdgePlate(inputRowAndCol) _,
+    addEdgePlate(inputRowAndCol) _,
+    replaceBasicToSpec(inputRowAndCol) _,
+    replaceSpecToBasic(inputRowAndCol) _,
+    setPosition(inputRowAndCol, getStartPosition, startChar) _,
+    setPosition(inputRowAndCol, getFinishPosition, finishChar) _,
     inverseStartFinish _,
     replaceAllSpecToBasic _,
-    filter(inputDistance _) _
+    filter(inputRowAndCol, inputDistance) _
   )
 
-  val operationList2 = List(
-    removeEdgePlate _,
-    addEdgePlate _,
-    replaceBasicToSpec _,
-    replaceSpecToBasic _,
-    setPosition(getStartPosition, startChar) _,
-    setPosition(getFinishPosition, finishChar) _,
-    inverseStartFinish _,
-    replaceAllSpecToBasic _,
-    filter _
-  )
-
-  val sequencesMap: mutable.LinkedHashMap[String, List[Object]] = mutable.LinkedHashMap()
+  val sequencesMap: mutable.LinkedHashMap[String, List[Option[Map] => Option[Map]]] = mutable.LinkedHashMap()
 
   case class Map(map: ArrayBuffer[Array[Char]])
   case class Block(position1: Position, position2: Option[Position])
@@ -91,63 +82,74 @@ object Main {
   }
 
   class MapOpsMenu(var map: Option[Map]) extends Menu {
-    val list = List(removeEdgePlate _, addEdgePlate _, setPosition(getFinishPosition, finishChar) _)
-
+//    val list = List(removeEdgePlate _, addEdgePlate _, setPosition(getFinishPosition, finishChar) _)
 
     override def menu(): Unit = {
       println(mapCreatingMenu)
       printSequences()
+      println("Uneti izbor: \n")
       StdIn.readLine() match {
-        case "1" => removeEdgePlate(map, inputRowAndCol()) match {
+        case "1" => removeEdgePlate(inputRowAndCol)(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "2" => addEdgePlate(map, inputRowAndCol()) match {
+        case "2" => addEdgePlate(inputRowAndCol)(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "3" => replaceBasicToSpec(map, inputRowAndCol()) match {
+        case "3" => replaceBasicToSpec(inputRowAndCol)(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "4" => replaceSpecToBasic(map, inputRowAndCol()) match {
+        case "4" => replaceSpecToBasic(inputRowAndCol)(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "5" => setPosition(getStartPosition, startChar)(map, inputRowAndCol()) match {
+        case "5" => setPosition(inputRowAndCol, getStartPosition, startChar)(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "6" => setPosition(getFinishPosition, finishChar)(map, inputRowAndCol()) match {
+        case "6" => setPosition(inputRowAndCol, getFinishPosition, finishChar)(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "7" => //kompozitna
-        case "8" => inverseStartFinish(map) match {
+        case "7" => inverseStartFinish(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "9" => replaceAllSpecToBasic(map) match {
+        case "8" => replaceAllSpecToBasic(map) match {
           case Some(_map) => map = Some(_map)
           case None => println("Greska!")
         }
-        case "10" => filter(inputDistance)(map, inputRowAndCol()) match {
+        case "9" => filter(inputRowAndCol, inputDistance)(map) match {
           case Some(_map) => map = Option(_map)
           case None => println("Greska!")
         }
-        case "11" => makeListOfInts(inputOperationsNumbers()) match {
+        case "10" => makeListOfInts(inputOperationsNumbers()) match {
           case Some(listOfNumbers) => sequencesMap += (inputSequenceName() -> makeListOfOperations(listOfNumbers))
           case None => println("Greska!")
         }
+        case "11" => //kompozitna
         case "12" =>
           maps = map.get :: maps
           menuStack = menuStack.tail
-        case "13" => menuStack = menuStack.tail
-        case number => sequencesMap.drop(Integer.parseInt(number) - operationList.size - 1).headOption match {
-          case Some((name, operations)) => for(f <- operations) f(map, inputRowAndCol())
-          case None => println("Greska!")
-        }
+        case "13" =>
+          menuStack = menuStack.tail
+        case other =>
+          try{
+            sequencesMap.drop(Integer.parseInt(other) - operationList.size - 1 - 4).headOption match {
+              case Some((name, operations)) =>
+                for(f <- operations)
+                  f(map) match {
+                  case Some(_map) => map = Option(_map); printMap(map.get)
+                  case None => println("Greska!")
+                }
+              case None => println("Greska!")
+            }
+          }
+          catch { case e: NumberFormatException => println("Greska!")}
       }
+      printMap(map.get)
     }
   }
 
@@ -158,12 +160,12 @@ object Main {
 
   def printSequences(): Unit = {
     for(((key, value), index) <- sequencesMap.zipWithIndex){
-      val number = operationList.size + index + 1
+      val number = operationList.size + index + 1 + 4
       println(s"$number. $key\n")
     }
   }
 
-  def makeListOfOperations(list: List[Int]): List[Object] = {
+  def makeListOfOperations(list: List[Int]): List[Option[Map] => Option[Map]] = {
     list match {
       case h :: t => operationList(h) :: makeListOfOperations(t)
       case List() => List()

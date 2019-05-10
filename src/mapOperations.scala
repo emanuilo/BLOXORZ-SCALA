@@ -40,8 +40,9 @@ object MapOperations {
       col > 0
   }
 
-  def removeEdgePlate(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+  def removeEdgePlate(_target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
     if(map.isEmpty) return None
+    val target = _target()
     if(target.isEmpty) return None
     val row = target.get._1
     val col = target.get._2
@@ -63,8 +64,9 @@ object MapOperations {
       None
   }
 
-  def addEdgePlate(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+  def addEdgePlate(_target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
     if(map.isEmpty) return None
+    val target = _target()
     if(target.isEmpty) return None
     val row = target.get._1
     val col = target.get._2
@@ -86,8 +88,9 @@ object MapOperations {
       None
   }
 
-  def replaceBasicToSpec(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+  def replaceBasicToSpec(_target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
     if(map.isEmpty) return None
+    val target = _target()
     if(target.isEmpty) return None
     val row = target.get._1
     val col = target.get._2
@@ -102,11 +105,11 @@ object MapOperations {
       None
   }
 
-  def replaceSpecToBasic(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+  def replaceSpecToBasic(target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
     if(map.isEmpty) return None
     val newMap = Map(map.get.map.map(_.clone()))
 
-    target match {
+    target() match {
       case Some((row, col)) =>
         if ( checkIndices(row, col, newMap) &&
              newMap.map(row)(col) == specPlateChar ) {
@@ -118,12 +121,12 @@ object MapOperations {
     }
   }
 
-  def setPosition(getOldPosition: Map => (Int, Int), char: Char)(map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
+  def setPosition(target: () => Option[(Int, Int)], getOldPosition: Map => (Int, Int), char: Char)(map: Option[Map]): Option[Map] = {
     if(map.isEmpty) return None
     val newMap = Map(map.get.map.map(_.clone()))
     val oldPosition = getOldPosition(newMap)
 
-    target match {
+    target() match {
       case Some((row, col)) =>
         if( checkIndices(row, col, newMap) && !(
             newMap.map(row)(col - 1) == noPlateChar &&
@@ -143,17 +146,17 @@ object MapOperations {
     if(map.isEmpty) return None
 
     setPosition(
-      getStartPosition,           // start position because we don't want to rewrite the old position, now there is the start position
+      () => Some(getStartPosition(map.get)),
+      Map => getStartPosition(map.get),           // start position because we don't want to rewrite the old position, now there is the start position
       finishChar
     )(
       setPosition(
-        getStartPosition,
+        () => Some(getFinishPosition(map.get)),
+        Map => getStartPosition(map.get),
         startChar
       )(
-        map,
-        Some(getFinishPosition(map.get))
-      ),
-      Some(getStartPosition(map.get))
+        map
+      )
     )
   }
 
@@ -164,13 +167,13 @@ object MapOperations {
     for(row <- 1 until map.get.map.size - 1;
         col <- 1 until map.get.map.head.length - 1
         if map.get.map(row)(col) == specPlateChar)
-      newMap = replaceSpecToBasic(newMap, Some(row, col))
+      newMap = replaceSpecToBasic(() => Some(row, col))(newMap)
 
     newMap
   }
 
-  def filter(getDistance: () => Option[Int])(_map: Option[Map], target: Option[(Int, Int)]): Option[Map] = {
-    (target, getDistance(), _map) match {
+  def filter(target: () => Option[(Int, Int)], getDistance: () => Option[Int])(_map: Option[Map]): Option[Map] = {
+    (target(), getDistance(), _map) match {
       case (Some((row, col)), Some(distance), Some(map)) =>
         val exist = (for{i <- row - distance to row + distance
             if i >= 0 && i < map.map.size
@@ -178,7 +181,7 @@ object MapOperations {
             if j >= 0 && j < map.map.head.length
             if map.map(i)(j) == specPlateChar} yield true).headOption
         exist match {
-          case Some(_) => replaceSpecToBasic(_map, target)
+          case Some(_) => replaceSpecToBasic(target)(_map)
           case None => None
         }
       case _ => None
