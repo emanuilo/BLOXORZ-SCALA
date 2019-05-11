@@ -1,4 +1,4 @@
-import Main.menu
+import Main._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.io.{Source, StdIn}
@@ -48,6 +48,7 @@ object Main {
   )
 
   val sequencesMap: mutable.LinkedHashMap[String, List[Option[Map] => Option[Map]]] = mutable.LinkedHashMap()
+  val compositsMap: mutable.LinkedHashMap[String, Option[Map] => Option[Map]] = mutable.LinkedHashMap()
 
   case class Map(map: ArrayBuffer[Array[Char]])
   case class Block(position1: Position, position2: Option[Position])
@@ -82,8 +83,6 @@ object Main {
   }
 
   class MapOpsMenu(var map: Option[Map]) extends Menu {
-//    val list = List(removeEdgePlate _, addEdgePlate _, setPosition(getFinishPosition, finishChar) _)
-
     override def menu(): Unit = {
       println(mapCreatingMenu)
       printSequences()
@@ -129,7 +128,10 @@ object Main {
           case Some(listOfNumbers) => sequencesMap += (inputSequenceName() -> makeListOfOperations(listOfNumbers))
           case None => println("Greska!")
         }
-        case "11" => //kompozitna
+        case "11" => makeListOfInts(inputOperationsNumbers()) match {
+          case Some(listOfNumbers) => compositsMap += (inputSequenceName() -> makeCompositeOperation(listOfNumbers))
+          case None => println("Greska!")
+        }
         case "12" =>
           maps = map.get :: maps
           menuStack = menuStack.tail
@@ -137,17 +139,28 @@ object Main {
           menuStack = menuStack.tail
         case other =>
           try{
-            sequencesMap.drop(Integer.parseInt(other) - operationList.size - 1 - 4).headOption match {
-              case Some((name, operations)) =>
-                for(f <- operations)
-                  f(map) match {
-                  case Some(_map) => map = Option(_map); printMap(map.get)
-                  case None => println("Greska!")
-                }
+            compositsMap.drop(Integer.parseInt(other) - operationList.size - 1 - 4).headOption match {
+              case Some((name, operation)) =>
+                  operation(map) match {
+                    case Some(_map) => map = Option(_map); printMap(map.get)
+                    case None => println("Greska!")
+                  }
               case None => println("Greska!")
             }
           }
           catch { case e: NumberFormatException => println("Greska!")}
+//          try{
+//            sequencesMap.drop(Integer.parseInt(other) - operationList.size - 1 - 4).headOption match {
+//              case Some((name, operations)) =>
+//                for(f <- operations)
+//                  f(map) match {
+//                  case Some(_map) => map = Option(_map); printMap(map.get)
+//                  case None => println("Greska!")
+//                }
+//              case None => println("Greska!")
+//            }
+//          }
+//          catch { case e: NumberFormatException => println("Greska!")}
       }
       printMap(map.get)
     }
@@ -159,8 +172,9 @@ object Main {
   }
 
   def printSequences(): Unit = {
-    for(((key, value), index) <- sequencesMap.zipWithIndex){
-      val number = operationList.size + index + 1 + 4
+    //TODO promeni sequences
+    for(((key, value), index) <- compositsMap.zipWithIndex){
+      val number = operationList.size + index + 1 + 4   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
       println(s"$number. $key\n")
     }
   }

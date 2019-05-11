@@ -65,7 +65,7 @@ object MapOperations {
     (target(), map) match {
       case (Some((row, col)), Some(_map)) =>
         val newMap = Map(_map.map.map(_.clone()))
-        if ( checkIndices(row, col, newMap) && ((                            // at least one surrounding plate
+        if ( checkIndices(row, col, newMap) && ((             // at least one surrounding plate
             newMap.map(row)(col - 1) != noPlateChar ||
             newMap.map(row)(col + 1) != noPlateChar ||
             newMap.map(row - 1)(col) != noPlateChar ||
@@ -133,14 +133,14 @@ object MapOperations {
     if(map.isEmpty) return None
 
     setPosition(
-      () => Some(getStartPosition(map.get)),
-      Map => getStartPosition(map.get),           // start position because we don't want to rewrite the old position, now there is the start position
+      () => Some(getStartPosition(map.get)),     // new position -> start position
+      Map => getStartPosition(map.get),          // old position -> start position, because we don't want to rewrite the old finish position, now there is the start position
       finishChar
     )(
-      setPosition(
-        () => Some(getFinishPosition(map.get)),
-        Map => getStartPosition(map.get),
-        startChar
+      setPosition(                               // setting start position at the finish position
+        () => Some(getFinishPosition(map.get)),  // new position -> finish position
+        Map => getStartPosition(map.get),        // old start position
+        startChar                                // which char to put on the position
       )(
         map
       )
@@ -162,17 +162,28 @@ object MapOperations {
   def filter(target: () => Option[(Int, Int)], getDistance: () => Option[Int])(_map: Option[Map]): Option[Map] = {
     (target(), getDistance(), _map) match {
       case (Some((row, col)), Some(distance), Some(map)) =>
-        val exist = (for{i <- row - distance to row + distance
+        val exist = (for{i <- row - distance to row + distance         // looking for at least one spec plate in a square around the plate size of distance
             if i >= 0 && i < map.map.size
             j <- col - distance to col + distance
             if j >= 0 && j < map.map.head.length
-            if map.map(i)(j) == specPlateChar} yield true).headOption
+            if map.map(i)(j) == specPlateChar} yield true).headOption  // it doesn't matter if there is more than one spec plate
         exist match {
           case Some(_) => replaceSpecToBasic(target)(_map)
           case None => None
         }
       case _ => None
     }
+  }
+
+  def makeCompositeOperation(listOfInts: List[Int]): Option[Map] => Option[Map] = {
+    def compose(map: Option[Map], list: List[Int]): Option[Map] = {
+      list match {
+        case h :: t if t.isEmpty => operationList(h)(map)
+        case h :: t => operationList(h)(compose(map, t))
+        case List() => None
+      }
+    }
+    map => compose(map, listOfInts)
   }
 }
 
