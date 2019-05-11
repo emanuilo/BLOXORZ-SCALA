@@ -40,94 +40,81 @@ object MapOperations {
       col > 0
   }
 
-  def removeEdgePlate(_target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
-    if(map.isEmpty) return None
-    val target = _target()
-    if(target.isEmpty) return None
-    val row = target.get._1
-    val col = target.get._2
-    val newMap = Map(map.get.map.map(_.clone()))
-
-    if ( checkIndices(row, col, newMap) && ((
-         newMap.map(row)(col - 1) == noPlateChar ||
-         newMap.map(row)(col + 1) == noPlateChar ||
-         newMap.map(row - 1)(col) == noPlateChar ||
-         newMap.map(row + 1)(col) == noPlateChar ) && !(
-         newMap.map(row)(col - 1) == noPlateChar &&
-         newMap.map(row)(col + 1) == noPlateChar &&
-         newMap.map(row - 1)(col) == noPlateChar &&
-         newMap.map(row + 1)(col) == noPlateChar )) ) {
-      newMap.map(row)(col) = '-'
-      Some(newMap)
+  def removeEdgePlate(target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
+    (target(), map) match {
+      case (Some((row, col)), Some(_map)) =>
+        val newMap = Map(_map.map.map(_.clone()))
+        if ( checkIndices(row, col, newMap) && ((
+            newMap.map(row)(col - 1) == noPlateChar ||
+            newMap.map(row)(col + 1) == noPlateChar ||
+            newMap.map(row - 1)(col) == noPlateChar ||
+            newMap.map(row + 1)(col) == noPlateChar ) && !(
+            newMap.map(row)(col - 1) == noPlateChar &&
+            newMap.map(row)(col + 1) == noPlateChar &&
+            newMap.map(row - 1)(col) == noPlateChar &&
+            newMap.map(row + 1)(col) == noPlateChar )) ) {
+          newMap.map(row)(col) = '-'
+          Some(newMap)
+        }
+        else None
+      case _ => None
     }
-    else
-      None
   }
 
-  def addEdgePlate(_target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
-    if(map.isEmpty) return None
-    val target = _target()
-    if(target.isEmpty) return None
-    val row = target.get._1
-    val col = target.get._2
-    val newMap = Map(map.get.map.map(_.clone()))
-
-    if ( checkIndices(row, col, newMap) && ((                            // at least one surrounding plate
-         newMap.map(row)(col - 1) != noPlateChar ||
-         newMap.map(row)(col + 1) != noPlateChar ||
-         newMap.map(row - 1)(col) != noPlateChar ||
-         newMap.map(row + 1)(col) != noPlateChar ) && !(   // but not all of them
-         newMap.map(row)(col - 1) != noPlateChar &&
-         newMap.map(row)(col + 1) != noPlateChar &&
-         newMap.map(row - 1)(col) != noPlateChar &&
-         newMap.map(row + 1)(col) != noPlateChar )) ) {
-      newMap.map(row)(col) = 'o'
-      Some(newMap)
+  def addEdgePlate(target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
+    (target(), map) match {
+      case (Some((row, col)), Some(_map)) =>
+        val newMap = Map(_map.map.map(_.clone()))
+        if ( checkIndices(row, col, newMap) && ((                            // at least one surrounding plate
+            newMap.map(row)(col - 1) != noPlateChar ||
+            newMap.map(row)(col + 1) != noPlateChar ||
+            newMap.map(row - 1)(col) != noPlateChar ||
+            newMap.map(row + 1)(col) != noPlateChar ) && !(   // but not all of them
+            newMap.map(row)(col - 1) != noPlateChar &&
+            newMap.map(row)(col + 1) != noPlateChar &&
+            newMap.map(row - 1)(col) != noPlateChar &&
+            newMap.map(row + 1)(col) != noPlateChar )) ) {
+          newMap.map(row)(col) = 'o'
+          Some(newMap)
+        }
+        else None
+      case _ => None
     }
-    else
-      None
   }
 
-  def replaceBasicToSpec(_target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
-    if(map.isEmpty) return None
-    val target = _target()
-    if(target.isEmpty) return None
-    val row = target.get._1
-    val col = target.get._2
-    val newMap = Map(map.get.map.map(_.clone()))
-
-    if ( checkIndices(row, col, newMap) &&
-         newMap.map(row)(col) == plateChar ) {
-      newMap.map(row)(col) = specPlateChar
-      Some(newMap)
+  def replaceBasicToSpec(target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
+    (target(), map) match {
+      case (Some((row, col)), Some(_map)) =>
+        val newMap = Map(_map.map.map(_.clone()))
+        if ( checkIndices(row, col, newMap) &&
+          newMap.map(row)(col) == plateChar ) {
+          newMap.map(row)(col) = specPlateChar
+          Some(newMap)
+        }
+        else None
+      case _ => None
     }
-    else
-      None
   }
 
   def replaceSpecToBasic(target: () => Option[(Int, Int)])(map: Option[Map]): Option[Map] = {
-    if(map.isEmpty) return None
-    val newMap = Map(map.get.map.map(_.clone()))
-
-    target() match {
-      case Some((row, col)) =>
+    (target(), map) match {
+      case (Some((row, col)), Some(_map)) =>
+        val newMap = Map(_map.map.map(_.clone()))
         if ( checkIndices(row, col, newMap) &&
              newMap.map(row)(col) == specPlateChar ) {
           newMap.map(row)(col) = plateChar
           Some(newMap)
         }
         else None
-      case None => None
+      case _ => None
     }
   }
 
   def setPosition(target: () => Option[(Int, Int)], getOldPosition: Map => (Int, Int), char: Char)(map: Option[Map]): Option[Map] = {
-    if(map.isEmpty) return None
-    val newMap = Map(map.get.map.map(_.clone()))
-    val oldPosition = getOldPosition(newMap)
-
-    target() match {
-      case Some((row, col)) =>
+    (target(), map) match {
+      case (Some((row, col)), Some(_map)) =>
+        val newMap = Map(_map.map.map(_.clone()))
+        val oldPosition = getOldPosition(newMap)
         if( checkIndices(row, col, newMap) && !(
             newMap.map(row)(col - 1) == noPlateChar &&
             newMap.map(row)(col + 1) == noPlateChar &&
@@ -138,7 +125,7 @@ object MapOperations {
           Some(newMap)
         }
         else None
-      case None => None
+      case _ => None
     }
   }
 
