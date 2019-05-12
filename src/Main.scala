@@ -31,6 +31,7 @@ object Main {
   val plateChar: Char = 'o'
   val specPlateChar: Char = '.'
   val noPlateChar: Char = '-'
+  val OFFSET = 4
 
   var maps: List[Map] = List()
   var menuStack: List[Menu] = List(new MainMenu)
@@ -138,7 +139,7 @@ object Main {
           menuStack = menuStack.tail
         case other =>
           try{
-            val number = Integer.parseInt(other) - operationList.size - 1 - 4    // 4 = {10, 11, 12, 13}
+            val number = Integer.parseInt(other) - operationList.size - 1 - OFFSET    // 4 = {10, 11, 12, 13}
             if(number < sequencesMap.size){
               sequencesMap.drop(number).headOption match {
                 case Some((name, operations)) =>
@@ -173,11 +174,11 @@ object Main {
 
   def printCustomOperations(): Unit = {
     for(((key, value), index) <- sequencesMap.zipWithIndex){
-      val number = operationList.size + index + 1 + 4   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
+      val number = operationList.size + index + 1 + OFFSET   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
       println(s"$number. $key")
     }
     for(((key, value), index) <- compositsMap.zipWithIndex){
-      val number = operationList.size + sequencesMap.size + index + 1 + 4   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
+      val number = operationList.size + sequencesMap.size + index + 1 + OFFSET   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
       println(s"$number. $key")
     }
   }

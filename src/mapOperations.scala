@@ -182,12 +182,20 @@ object MapOperations {
     }
   }
 
+  def compositsRange(number: Int): Int = number - OFFSET - sequencesMap.size - operationList.size
+
   def makeCompositeOperation(listOfInts: List[Int]): Option[Map] => Option[Map] = {
     def compose(map: Option[Map], list: List[Int]): Option[Map] = {
       list match {
-        case h :: t if t.isEmpty => operationList(h)(map)
-        case h :: t => operationList(h)(compose(map, t))
-        case List() => None
+        case h :: t if t.isEmpty && h < operationList.size =>
+          operationList(h)(map)
+        case h :: t if t.isEmpty && h >= operationList.size + OFFSET + sequencesMap.size =>
+          compositsMap.drop(compositsRange(h)).head._2(map)
+        case h :: t if h < operationList.size =>
+          operationList(h)(compose(map, t))
+        case h :: t if h >= operationList.size + OFFSET + sequencesMap.size =>
+          compositsMap.drop(compositsRange(h)).head._2(compose(map, t))
+        case _ => None
       }
     }
     map => compose(map, listOfInts)
