@@ -3,7 +3,6 @@ import Main._
 import scala.collection.mutable.ArrayBuffer
 import scala.io.{Source, StdIn}
 import MapOperations._
-
 import scala.collection.mutable
 
 object Main {
@@ -85,7 +84,7 @@ object Main {
   class MapOpsMenu(var map: Option[Map]) extends Menu {
     override def menu(): Unit = {
       println(mapCreatingMenu)
-      printSequences()
+      printCustomOperations()
       println("Uneti izbor: \n")
       StdIn.readLine() match {
         case "1" => removeEdgePlate(inputRowAndCol)(map) match {
@@ -129,7 +128,7 @@ object Main {
           case None => println("Greska!")
         }
         case "11" => makeListOfInts(inputOperationsNumbers()) match {
-          case Some(listOfNumbers) => compositsMap += (inputSequenceName() -> makeCompositeOperation(listOfNumbers))
+          case Some(listOfNumbers) => compositsMap += (inputSequenceName() -> makeCompositeOperation(listOfNumbers.reverse))
           case None => println("Greska!")
         }
         case "12" =>
@@ -139,28 +138,29 @@ object Main {
           menuStack = menuStack.tail
         case other =>
           try{
-            compositsMap.drop(Integer.parseInt(other) - operationList.size - 1 - 4).headOption match {
-              case Some((name, operation)) =>
-                  operation(map) match {
-                    case Some(_map) => map = Option(_map); printMap(map.get)
-                    case None => println("Greska!")
+            val number = Integer.parseInt(other) - operationList.size - 1 - 4    // 4 = {10, 11, 12, 13}
+            if(number < sequencesMap.size){
+              sequencesMap.drop(number).headOption match {
+                case Some((name, operations)) =>
+                  for(f <- operations)
+                    f(map) match {
+                      case Some(_map) => map = Option(_map); printMap(map.get)
+                      case None => println("Greska!")
                   }
-              case None => println("Greska!")
+                case None => println("Greska!")
+              }
             }
-          }
-          catch { case e: NumberFormatException => println("Greska!")}
-//          try{
-//            sequencesMap.drop(Integer.parseInt(other) - operationList.size - 1 - 4).headOption match {
-//              case Some((name, operations)) =>
-//                for(f <- operations)
-//                  f(map) match {
-//                  case Some(_map) => map = Option(_map); printMap(map.get)
-//                  case None => println("Greska!")
-//                }
-//              case None => println("Greska!")
-//            }
-//          }
-//          catch { case e: NumberFormatException => println("Greska!")}
+            else{
+              compositsMap.drop(number - sequencesMap.size).headOption match {
+                case Some((name, operation)) =>
+                    operation(map) match {
+                      case Some(_map) => map = Option(_map); printMap(map.get)
+                      case None => println("Greska!")
+                    }
+                case None => println("Greska!")
+              }
+            }
+          } catch { case e: NumberFormatException => println("Greska!")}
       }
       printMap(map.get)
     }
@@ -171,18 +171,14 @@ object Main {
     if(menuStack.nonEmpty) main(args)
   }
 
-  def printSequences(): Unit = {
-    //TODO promeni sequences
-    for(((key, value), index) <- compositsMap.zipWithIndex){
+  def printCustomOperations(): Unit = {
+    for(((key, value), index) <- sequencesMap.zipWithIndex){
       val number = operationList.size + index + 1 + 4   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
-      println(s"$number. $key\n")
+      println(s"$number. $key")
     }
-  }
-
-  def makeListOfOperations(list: List[Int]): List[Option[Map] => Option[Map]] = {
-    list match {
-      case h :: t => operationList(h) :: makeListOfOperations(t)
-      case List() => List()
+    for(((key, value), index) <- compositsMap.zipWithIndex){
+      val number = operationList.size + sequencesMap.size + index + 1 + 4   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
+      println(s"$number. $key")
     }
   }
 

@@ -175,6 +175,13 @@ object MapOperations {
     }
   }
 
+  def makeListOfOperations(list: List[Int]): List[Option[Map] => Option[Map]] = {
+    list match {
+      case h :: t => operationList(h) :: makeListOfOperations(t)
+      case List() => List()
+    }
+  }
+
   def makeCompositeOperation(listOfInts: List[Int]): Option[Map] => Option[Map] = {
     def compose(map: Option[Map], list: List[Int]): Option[Map] = {
       list match {
