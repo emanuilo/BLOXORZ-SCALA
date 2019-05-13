@@ -3,13 +3,15 @@ import Main._
 import scala.collection.mutable.ArrayBuffer
 import scala.io.{Source, StdIn}
 import MapOperations._
+import FindingPath._
 import scala.collection.mutable
 
 object Main {
   val menuStr: String = "1. Ucitaj mapu \n" +
     "2. Zapocni igru \n" +
     "3. Kreiranje mapa \n" +
-    "4. Kraj \n" +
+    "4. Ispis resenja \n" +
+    "5. Kraj \n" +
     "Uneti izbor: "
 
   val mapCreatingMenu: String = "1. Uklanjanje zadate ploce sa ivice terena \n" +
@@ -72,12 +74,22 @@ object Main {
           map match {
             case None => println("Pogresan unos!")
             case Some(_map) =>
-              val copyMap = Map(_map.map.map(_.clone()))
-              println(playMove(inputPlayerMove, initBlockPosition(copyMap), copyMap))
+              println(playMove(inputPlayerMove, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
           }
-        case '3' => menuStack = new MapOpsMenu(getMap(inputMapNumber(), maps)) :: menuStack
-        case '4' => menuStack = List()
-        case _ => println("Pogresan unos!")
+        case '3' =>
+          menuStack = new MapOpsMenu(getMap(inputMapNumber(), maps)) :: menuStack
+        case '4' =>
+          val map = getMap(inputMapNumber(), maps)
+          map match {
+            case Some(_map) =>
+              findPath(initBlockPosition(_map), Map(_map.map.map(_.clone())))
+              println(stack.reverse)
+            case None => println("Pogresan unos!")
+          }
+        case '5' =>
+          menuStack = List()
+        case _ =>
+          println("Pogresan unos!")
       }
     }
   }
