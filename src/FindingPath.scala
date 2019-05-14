@@ -6,57 +6,71 @@ object FindingPath {
   val up = 'u'
   val down = 'd'
   var stack: List[Char] = List()
+  val moves: List[Char] = List(down, right, left, up)
 
   def findPath(block: Block, map: Map): String = {
     play(down, block, map) match {
-      case (_block, "Win") =>
+      case "Win" =>
         stack = down :: stack
         return "Win"
-      case (_block, "OK") =>
-        if (stack.isEmpty || stack.head != up){
+      case "OK" =>
+        if (stack.isEmpty || stack.head != up || stack.tail.isEmpty || stack.tail.head != down){
           stack = down :: stack
-          if (findPath(_block, map) == "Win") return "Win"
+          printMap(map)
+          if (findPath(block, map) == "Win") return "Win"
         }
-      case (_block, "Fail") =>
+        else
+          play(up, block, map)
+      case "Fail" =>
     }
     play(right, block, map) match {
-      case (_block, "Win") =>
+      case "Win" =>
         stack = right :: stack
         return "Win"
-      case (_block, "OK") =>
-        if (stack.isEmpty || stack.head != left){
+      case "OK" =>
+        if (stack.isEmpty || stack.head != left || stack.tail.isEmpty || stack.tail.head != right){
           stack = right :: stack
-          if (findPath(_block, map) == "Win") return "Win"
+          printMap(map)
+          if (findPath(block, map) == "Win") return "Win"
         }
-      case (_block, "Fail") =>
+        else
+          play(left, block, map)
+      case "Fail" =>
     }
     play(left, block, map) match {
-      case (_block, "Win") =>
+      case "Win" =>
         stack = left :: stack
         return "Win"
-      case (_block, "OK") =>
-        if (stack.isEmpty || stack.head != right){
+      case "OK" =>
+        if (stack.isEmpty || stack.head != right || stack.tail.isEmpty || stack.tail.head != left){
           stack = left :: stack
-          if (findPath(_block, map) == "Win") return "Win"
+          printMap(map)
+          if (findPath(block, map) == "Win") return "Win"
         }
-      case (_block, "Fail") =>
+        else
+          play(right, block, map)
+      case "Fail" =>
     }
     play(up, block, map) match {
-      case (_block, "Win") =>
+      case "Win" =>
         stack = up :: stack
         "Win"
-      case (_block, "OK") =>
-        if (stack.isEmpty || stack.head != down){
+      case "OK" =>
+        if (stack.isEmpty || stack.head != down || stack.tail.isEmpty || stack.tail.head != up){
           stack = up :: stack
-          if (findPath(_block, map) == "Win") "Win"
+          printMap(map)
+          if (findPath(block, map) == "Win") "Win"
           else "Fail"
         }
-        else "Fail"
-      case (_block, "Fail") => "Fail"
+        else {
+          play(down, block, map)
+          "Fail"
+        }
+      case "Fail" => "Fail"
     }
   }
 
-  def play(direction: Char, block: Block, map: Map): (Block, String) = {
+  def play(direction: Char, block: Block, map: Map): String = {
     val row_col = getCoordsTuple(direction)
     if (row_col.isEmpty) {
       println("Pogresna komanda!")
@@ -70,25 +84,31 @@ object FindingPath {
       case Block(pos1, None) => // block is standing upright
         if ( map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-' ||  // game over if block gets out of the map
           map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos1.x + 2 * row)(pos1.y) == '-' )
-          (block, "Fail")
+          "Fail"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with 'o'
           map.map(pos1.x + row)(pos1.y + col) = 'X'                               // replace char with 'X' at new block position
           map.map(pos1.x + 2 * row)(pos1.y + 2 * col) = 'X'                       // replace char with 'X' at new block position
           map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish position if it's been overwritten
-          printMap(map)
+//          printMap(map)
 
-          val newBlock = if(row == -1 || col == -1)  // sorting which position is first in Block object
-            Block(Position(pos1.x + 2 * row, pos1.y + 2 * col), Some(Position(pos1.x + row, pos1.y + col)))
-          else
-            Block(Position(pos1.x + row, pos1.y + col), Some(Position(pos1.x + 2 * row, pos1.y + 2 * col)))
+          if(row == -1 || col == -1) { // sorting which position is first in Block object
+            //Block(Position(pos1.x + 2 * row, pos1.y + 2 * col), Some(Position(pos1.x + row, pos1.y + col)))
+            block.position1 = Position(pos1.x + 2 * row, pos1.y + 2 * col)
+            block.position2 = Some(Position(pos1.x + row, pos1.y + col))
+          }
+          else{
+            //Block(Position(pos1.x + row, pos1.y + col), Some(Position(pos1.x + 2 * row, pos1.y + 2 * col)))
+            block.position1 = Position(pos1.x + row, pos1.y + col)
+            block.position2 = Some(Position(pos1.x + 2 * row, pos1.y + 2 * col))
+          }
 
-          (newBlock, "OK")
+          "OK"
         }
       case Block(pos1, Some(pos2)) if pos1.x == pos2.x => // block is lying horizontally
         if (map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
-          (block, "Fail")
-        else if (map.map(pos1.x)(pos1.y + col) == 'T' && col == -1 || map.map(pos2.x)(pos2.y + col) == 'T' && col == 1) (block, "Win")
+          "Fail"
+        else if (map.map(pos1.x)(pos1.y + col) == 'T' && col == -1 || map.map(pos2.x)(pos2.y + col) == 'T' && col == 1) "Win"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
           if(col == -1)
@@ -97,18 +117,30 @@ object FindingPath {
             map.map(pos2.x + row)(pos2.y + col) = 'X'                             // replace char with 'X' at new block position
           if (row != 0) map.map(pos1.x + row)(pos1.y) = 'X'                       // replace char with 'X' at new block position
           map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish if it's been overwritten
-          printMap(map)
+//          printMap(map)
 
-          val newBlock = if (col == -1) Block(Position(pos1.x, pos1.y + col), None) // sorting which position is first in Block object
-          else if (col == 1) Block(Position(pos2.x, pos2.y + col), None)
-          else Block(Position(pos1.x + row, pos1.y), Some(Position(pos2.x + row, pos2.y)))
+          if (col == -1){
+            //Block(Position(pos1.x, pos1.y + col), None) // sorting which position is first in Block object
+            block.position1 = Position(pos1.x, pos1.y + col)
+            block.position2 = None
+          }
+          else if (col == 1){
+            //Block(Position(pos2.x, pos2.y + col), None)
+            block.position1 = Position(pos2.x, pos2.y + col)
+            block.position2 = None
+          }
+          else{
+            //Block(Position(pos1.x + row, pos1.y), Some(Position(pos2.x + row, pos2.y)))
+            block.position1 = Position(pos1.x + row, pos1.y)
+            block.position2 = Some(Position(pos2.x + row, pos2.y))
+          }
 
-          (newBlock, "OK")
+          "OK"
         }
       case Block(pos1, Some(pos2)) if pos1.x != pos2.x => // block is lying vertically
         if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
-          (block, "Fail")
-        else if (map.map(pos1.x + row)(pos1.y) == 'T' && row == -1 || map.map(pos2.x + row)(pos2.y) == 'T' && row == 1) (block, "Win")
+          "Fail"
+        else if (map.map(pos1.x + row)(pos1.y) == 'T' && row == -1 || map.map(pos2.x + row)(pos2.y) == 'T' && row == 1) "Win"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
           map.map(pos2.x) = map.map(pos2.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
@@ -118,13 +150,25 @@ object FindingPath {
             map.map(pos2.x + row)(pos2.y + col) = 'X'                             // replace char with 'X' at new block position
           if (col != 0) map.map(pos1.x)(pos1.y + col) = 'X'                       // replace char with 'X' at new block position
           map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish if it's been overwritten
-          printMap(map)
+//          printMap(map)
 
-          val newBlock = if (row == 1) Block(Position(pos2.x + row, pos2.y), None) // sorting which position is first in Block object
-          else if (row == -1) Block(Position(pos1.x + row, pos1.y), None)
-          else Block(Position(pos1.x, pos1.y + col), Some(Position(pos2.x, pos2.y + col)))
+          if (row == 1){
+            //Block(Position(pos2.x + row, pos2.y), None) // sorting which position is first in Block object
+            block.position1 = Position(pos2.x + row, pos2.y)
+            block.position2 = None
+          }
+          else if (row == -1){
+            //Block(Position(pos1.x + row, pos1.y), None)
+            block.position1 = Position(pos1.x + row, pos1.y)
+            block.position2 = None
+          }
+          else{
+            //Block(Position(pos1.x, pos1.y + col), Some(Position(pos2.x, pos2.y + col)))
+            block.position1 = Position(pos1.x, pos1.y + col)
+            block.position2 = Some(Position(pos2.x, pos2.y + col))
+          }
 
-          (newBlock, "OK")
+          "OK"
         }
     }
   }

@@ -53,8 +53,8 @@ object Main {
   val compositsMap: mutable.LinkedHashMap[String, Option[Map] => Option[Map]] = mutable.LinkedHashMap()
 
   case class Map(map: ArrayBuffer[Array[Char]])
-  case class Block(position1: Position, position2: Option[Position])
-  case class Position(x: Int, y: Int)
+  case class Block(var position1: Position, var position2: Option[Position])
+  case class Position(var x: Int, var y: Int)
 
   trait Menu {
     def menu()
