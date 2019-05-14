@@ -1,14 +1,132 @@
+import FindingPath.State.State
 import Main._
 
+import scala.collection.mutable
+import scala.util.Random
+
+
 object FindingPath {
+  object State extends Enumeration {
+    type State = Value
+    val I, II, III, IV, V, VI = Value
+  }
+  import State._
+
   val right = 'r'
   val left = 'l'
   val up = 'u'
   val down = 'd'
+
   var stack: List[Char] = List()
-  val moves: List[Char] = List(down, right, left, up)
+  val moves: List[Char] = List(down, right, up, left)
+  val stateHistory: mutable.HashSet[(Block, State)] = mutable.HashSet()
+  var state: State = I
+
+
+
+
+
+
+  val oppositeDir: Char => Char = {
+    case `down` => up
+    case `left` => right
+    case `right` => left
+    case `up` => down
+  }
+
+  def inLoop(list: List[Char]): Boolean = {
+    if (list.size < 8) return false
+    for (loopSize <- 2 to 4){
+      val loop = for {
+        i <- 0 until loopSize
+        if list(i) == list(i + loopSize)
+      } yield true
+      if (loop.size == loopSize) return true
+    }
+    false
+  }
+
+  def newState(move: Char): State = {
+    state match {
+      case I =>
+        move match {
+          case `down` => state = II
+          case `up` => state = VI
+          case `left` => state = V
+          case `right` => state = IV
+        }
+      case II =>
+        move match {
+          case `down` => state = III
+          case `up` => state = I
+          case `left` => state = II
+          case `right` => state = II
+        }
+      case III =>
+        move match {
+          case `down` => state = VI
+          case `up` => state = II
+          case `left` => state = IV
+          case `right` => state = V
+        }
+      case IV =>
+        move match {
+          case `down` => state = IV
+          case `up` => state = IV
+          case `left` => state = I
+          case `right` => state = III
+        }
+      case V =>
+        move match {
+          case `down` => state = V
+          case `up` => state = V
+          case `left` => state = III
+          case `right` => state = I
+        }
+      case VI =>
+        move match {
+          case `down` => state = I
+          case `up` => state = III
+          case `left` => state = VI
+          case `right` => state = VI
+        }
+    }
+    state
+  }
 
   def findPath(block: Block, map: Map): String = {
+    for (move <- moves) {
+      play(move, block, map) match {
+        case "Win" =>
+          stack = move :: stack
+          return "Win"
+        case "OK" =>
+            if((block.position2.nonEmpty &&
+                !stateHistory.contains((block, move))) || (
+                block.position2.isEmpty &&
+                !stateHistory.contains((block, down)) &&
+                !stateHistory.contains((block, up))   &&
+                !stateHistory.contains((block, left)) &&
+                !stateHistory.contains((block, right)))
+            )
+            {
+              stack = move :: stack
+              stateHistory += ((block.copy(), state))
+              printMap(map)
+              println(stack)
+              if (findPath(block, map) == "Win") return "Win"
+            }
+            else play(oppositeDir(move), block, map)            // reverse already made move
+        case "Fail" => {
+          printMap(map)
+          println(stack)
+        }
+      }
+    }
+    "Fail"
+  }
+
+  def findPath2(block: Block, map: Map): String = {
     play(down, block, map) match {
       case "Win" =>
         stack = down :: stack
@@ -103,6 +221,8 @@ object FindingPath {
             block.position2 = Some(Position(pos1.x + 2 * row, pos1.y + 2 * col))
           }
 
+          newState(direction)
+
           "OK"
         }
       case Block(pos1, Some(pos2)) if pos1.x == pos2.x => // block is lying horizontally
@@ -135,6 +255,7 @@ object FindingPath {
             block.position2 = Some(Position(pos2.x + row, pos2.y))
           }
 
+          newState(direction)
           "OK"
         }
       case Block(pos1, Some(pos2)) if pos1.x != pos2.x => // block is lying vertically
@@ -168,6 +289,7 @@ object FindingPath {
             block.position2 = Some(Position(pos2.x, pos2.y + col))
           }
 
+          newState(direction)
           "OK"
         }
     }

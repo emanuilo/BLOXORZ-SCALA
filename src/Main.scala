@@ -82,6 +82,7 @@ object Main {
           val map = getMap(inputMapNumber(), maps)
           map match {
             case Some(_map) =>
+              stateHistory += ((initBlockPosition(_map), down))
               findPath(initBlockPosition(_map), Map(_map.map.map(_.clone())))
               println(stack.reverse)
             case None => println("Pogresan unos!")
