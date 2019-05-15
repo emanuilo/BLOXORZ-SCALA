@@ -1,11 +1,9 @@
-import FindingPath.State.State
 import Main._
-
 import scala.collection.mutable
-import scala.util.Random
-
+import scala.collection.mutable.ArrayBuffer
 
 object FindingPath {
+
   object State extends Enumeration {
     type State = Value
     val I, II, III, IV, V, VI = Value
@@ -17,15 +15,11 @@ object FindingPath {
   val up = 'u'
   val down = 'd'
 
+  var moves: List[Char] = List(up, left, down, right)
   var stack: List[Char] = List()
-  val moves: List[Char] = List(down, right, up, left)
+  val stackBuffer: ArrayBuffer[List[Char]] = ArrayBuffer()
   val stateHistory: mutable.HashSet[(Block, State)] = mutable.HashSet()
   var state: State = I
-
-
-
-
-
 
   val oppositeDir: Char => Char = {
     case `down` => up
@@ -34,64 +28,20 @@ object FindingPath {
     case `up` => down
   }
 
-  def inLoop(list: List[Char]): Boolean = {
-    if (list.size < 8) return false
-    for (loopSize <- 2 to 4){
-      val loop = for {
-        i <- 0 until loopSize
-        if list(i) == list(i + loopSize)
-      } yield true
-      if (loop.size == loopSize) return true
+  def getPath(block: Block, map: Map): List[Char] = {
+    stackBuffer.clear()
+    for (permutation <- moves.permutations.toList){                      // every permutation of moves collection
+      moves = permutation
+      state = I
+      stack = List()
+      stateHistory.clear()
+      stateHistory += ((block.copy(), state))                            // adding starting state of the block
+      if (findPath(block.copy(), Map(map.map.map(_.clone()))) == "Win")  // if the path is found, add it to the buffer
+        stackBuffer += stack.reverse
     }
-    false
-  }
 
-  def newState(move: Char): State = {
-    state match {
-      case I =>
-        move match {
-          case `down` => state = II
-          case `up` => state = VI
-          case `left` => state = V
-          case `right` => state = IV
-        }
-      case II =>
-        move match {
-          case `down` => state = III
-          case `up` => state = I
-          case `left` => state = II
-          case `right` => state = II
-        }
-      case III =>
-        move match {
-          case `down` => state = VI
-          case `up` => state = II
-          case `left` => state = IV
-          case `right` => state = V
-        }
-      case IV =>
-        move match {
-          case `down` => state = IV
-          case `up` => state = IV
-          case `left` => state = I
-          case `right` => state = III
-        }
-      case V =>
-        move match {
-          case `down` => state = V
-          case `up` => state = V
-          case `left` => state = III
-          case `right` => state = I
-        }
-      case VI =>
-        move match {
-          case `down` => state = I
-          case `up` => state = III
-          case `left` => state = VI
-          case `right` => state = VI
-        }
-    }
-    state
+    if (stackBuffer.nonEmpty) stackBuffer.minBy(_.size)                  // find the shortest path
+    else List()                                                          // couldn't find the path
   }
 
   def findPath(block: Block, map: Map): String = {
@@ -101,99 +51,87 @@ object FindingPath {
           stack = move :: stack
           return "Win"
         case "OK" =>
-            if((block.position2.nonEmpty &&
-                !stateHistory.contains((block, move))) || (
-                block.position2.isEmpty &&
-                !stateHistory.contains((block, down)) &&
-                !stateHistory.contains((block, up))   &&
-                !stateHistory.contains((block, left)) &&
-                !stateHistory.contains((block, right)))
-            )
+            if(!stateHistory.contains((block, state)) &&                 // if the block has already been in this state
+            numOfPossibleMoves(block, map) > 0)                          // or if there is 0 available moves, reverse the move
             {
               stack = move :: stack
               stateHistory += ((block.copy(), state))
-              printMap(map)
-              println(stack)
-              if (findPath(block, map) == "Win") return "Win"
+//              printMap(map)
+//              println(stack)
+              if (findPath(block, map) == "Win") return "Win"            // go find another move
             }
-            else play(oppositeDir(move), block, map)            // reverse already made move
+            else play(oppositeDir(move), block, map)                     // reverse already played move
         case "Fail" => {
-          printMap(map)
-          println(stack)
+//          printMap(map)
+//          println(stack)
         }
       }
     }
     "Fail"
   }
 
-  def findPath2(block: Block, map: Map): String = {
-    play(down, block, map) match {
-      case "Win" =>
-        stack = down :: stack
-        return "Win"
-      case "OK" =>
-        if (stack.isEmpty || stack.head != up || stack.tail.isEmpty || stack.tail.head != down){
-          stack = down :: stack
-          printMap(map)
-          if (findPath(block, map) == "Win") return "Win"
+  def numOfPossibleMoves(block: Block, map: Map): Int = {
+    val backupState = state
+    val size = (for {                                                    // find number of available moves on the current position
+      move <- moves
+      _block = block.copy()
+      _map = Map(map.map.map(_.clone()))
+      if play(move, _block, _map) != "Fail"                              // move is available if its not a fail
+      if !stateHistory.contains((_block, newState(backupState, move)))   // or if it hasn't been before
+    } yield move).size                                                   // size of the returned list is the number of avail moves
+    state = backupState
+    size
+  }
+
+  def newState(_state: State, move: Char): State = {
+    _state match {
+      case I =>
+        move match {
+          case `down` => II
+          case `up` => VI
+          case `left` => V
+          case `right` => IV
         }
-        else
-          play(up, block, map)
-      case "Fail" =>
-    }
-    play(right, block, map) match {
-      case "Win" =>
-        stack = right :: stack
-        return "Win"
-      case "OK" =>
-        if (stack.isEmpty || stack.head != left || stack.tail.isEmpty || stack.tail.head != right){
-          stack = right :: stack
-          printMap(map)
-          if (findPath(block, map) == "Win") return "Win"
+      case II =>
+        move match {
+          case `down` => III
+          case `up` => I
+          case `left` => II
+          case `right` => II
         }
-        else
-          play(left, block, map)
-      case "Fail" =>
-    }
-    play(left, block, map) match {
-      case "Win" =>
-        stack = left :: stack
-        return "Win"
-      case "OK" =>
-        if (stack.isEmpty || stack.head != right || stack.tail.isEmpty || stack.tail.head != left){
-          stack = left :: stack
-          printMap(map)
-          if (findPath(block, map) == "Win") return "Win"
+      case III =>
+        move match {
+          case `down` => VI
+          case `up` => II
+          case `left` => IV
+          case `right` => V
         }
-        else
-          play(right, block, map)
-      case "Fail" =>
-    }
-    play(up, block, map) match {
-      case "Win" =>
-        stack = up :: stack
-        "Win"
-      case "OK" =>
-        if (stack.isEmpty || stack.head != down || stack.tail.isEmpty || stack.tail.head != up){
-          stack = up :: stack
-          printMap(map)
-          if (findPath(block, map) == "Win") "Win"
-          else "Fail"
+      case IV =>
+        move match {
+          case `down` => IV
+          case `up` => IV
+          case `left` => I
+          case `right` => III
         }
-        else {
-          play(down, block, map)
-          "Fail"
+      case V =>
+        move match {
+          case `down` => V
+          case `up` => V
+          case `left` => III
+          case `right` => I
         }
-      case "Fail" => "Fail"
+      case VI =>
+        move match {
+          case `down` => I
+          case `up` => III
+          case `left` => VI
+          case `right` => VI
+        }
     }
   }
 
   def play(direction: Char, block: Block, map: Map): String = {
     val row_col = getCoordsTuple(direction)
-    if (row_col.isEmpty) {
-      println("Pogresna komanda!")
-      return play(inputPlayerMove, block, map)
-    }
     val row = row_col.get._1
     val col = row_col.get._2
     val finishPos = getFinishPosition(map)
@@ -208,25 +146,21 @@ object FindingPath {
           map.map(pos1.x + row)(pos1.y + col) = 'X'                               // replace char with 'X' at new block position
           map.map(pos1.x + 2 * row)(pos1.y + 2 * col) = 'X'                       // replace char with 'X' at new block position
           map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish position if it's been overwritten
-//          printMap(map)
 
-          if(row == -1 || col == -1) { // sorting which position is first in Block object
-            //Block(Position(pos1.x + 2 * row, pos1.y + 2 * col), Some(Position(pos1.x + row, pos1.y + col)))
+          if(row == -1 || col == -1) {                                            // sorting which position is first in Block object
             block.position1 = Position(pos1.x + 2 * row, pos1.y + 2 * col)
             block.position2 = Some(Position(pos1.x + row, pos1.y + col))
           }
           else{
-            //Block(Position(pos1.x + row, pos1.y + col), Some(Position(pos1.x + 2 * row, pos1.y + 2 * col)))
             block.position1 = Position(pos1.x + row, pos1.y + col)
             block.position2 = Some(Position(pos1.x + 2 * row, pos1.y + 2 * col))
           }
 
-          newState(direction)
-
+          state = newState(state, direction)
           "OK"
         }
       case Block(pos1, Some(pos2)) if pos1.x == pos2.x => // block is lying horizontally
-        if (map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
+        if (map.map(pos1.x + row)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
           "Fail"
         else if (map.map(pos1.x)(pos1.y + col) == 'T' && col == -1 || map.map(pos2.x)(pos2.y + col) == 'T' && col == 1) "Win"
         else {
@@ -237,29 +171,25 @@ object FindingPath {
             map.map(pos2.x + row)(pos2.y + col) = 'X'                             // replace char with 'X' at new block position
           if (row != 0) map.map(pos1.x + row)(pos1.y) = 'X'                       // replace char with 'X' at new block position
           map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish if it's been overwritten
-//          printMap(map)
 
-          if (col == -1){
-            //Block(Position(pos1.x, pos1.y + col), None) // sorting which position is first in Block object
+          if (col == -1){                                                         // sorting which position is first in Block object
             block.position1 = Position(pos1.x, pos1.y + col)
             block.position2 = None
           }
           else if (col == 1){
-            //Block(Position(pos2.x, pos2.y + col), None)
             block.position1 = Position(pos2.x, pos2.y + col)
             block.position2 = None
           }
           else{
-            //Block(Position(pos1.x + row, pos1.y), Some(Position(pos2.x + row, pos2.y)))
             block.position1 = Position(pos1.x + row, pos1.y)
             block.position2 = Some(Position(pos2.x + row, pos2.y))
           }
 
-          newState(direction)
+          state = newState(state, direction)
           "OK"
         }
       case Block(pos1, Some(pos2)) if pos1.x != pos2.x => // block is lying vertically
-        if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
+        if (map.map(pos1.x + row)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
           "Fail"
         else if (map.map(pos1.x + row)(pos1.y) == 'T' && row == -1 || map.map(pos2.x + row)(pos2.y) == 'T' && row == 1) "Win"
         else {
@@ -271,25 +201,21 @@ object FindingPath {
             map.map(pos2.x + row)(pos2.y + col) = 'X'                             // replace char with 'X' at new block position
           if (col != 0) map.map(pos1.x)(pos1.y + col) = 'X'                       // replace char with 'X' at new block position
           map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish if it's been overwritten
-//          printMap(map)
 
-          if (row == 1){
-            //Block(Position(pos2.x + row, pos2.y), None) // sorting which position is first in Block object
+          if (row == 1){                                                          // sorting which position is first in Block object
             block.position1 = Position(pos2.x + row, pos2.y)
             block.position2 = None
           }
           else if (row == -1){
-            //Block(Position(pos1.x + row, pos1.y), None)
             block.position1 = Position(pos1.x + row, pos1.y)
             block.position2 = None
           }
           else{
-            //Block(Position(pos1.x, pos1.y + col), Some(Position(pos2.x, pos2.y + col)))
             block.position1 = Position(pos1.x, pos1.y + col)
             block.position2 = Some(Position(pos2.x, pos2.y + col))
           }
 
-          newState(direction)
+          state = newState(state, direction)
           "OK"
         }
     }

@@ -82,9 +82,7 @@ object Main {
           val map = getMap(inputMapNumber(), maps)
           map match {
             case Some(_map) =>
-              stateHistory += ((initBlockPosition(_map), down))
-              findPath(initBlockPosition(_map), Map(_map.map.map(_.clone())))
-              println(stack.reverse)
+              println(getPath(initBlockPosition(_map), _map))
             case None => println("Pogresan unos!")
           }
         case '5' =>
@@ -246,6 +244,7 @@ object Main {
           playMove(inputPlayerMove, newBlock, map)
         }
       case Block(pos1, Some(pos2)) if pos1.x == pos2.x => // block is lying horizontally
+        // ovde sam promenio pos1.y + col
         if (map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
           "Fail"
         else if (map.map(pos1.x)(pos1.y + col) == 'T' && col == -1 || map.map(pos2.x)(pos2.y + col) == 'T' && col == 1) "Win"
@@ -266,7 +265,8 @@ object Main {
           playMove(inputPlayerMove, newBlock, map)
         }
       case Block(pos1, Some(pos2)) if pos1.x != pos2.x => // block is lying vertically
-        if (map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
+        //ovde sam promenio pos1.x + row
+        if (map.map(pos1.x + row)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
           "Fail"
         else if (map.map(pos1.x + row)(pos1.y) == 'T' && row == -1 || map.map(pos2.x + row)(pos2.y) == 'T' && row == 1) "Win"
         else {
