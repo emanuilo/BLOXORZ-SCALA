@@ -1,5 +1,3 @@
-import Main._
-
 import scala.collection.mutable.ArrayBuffer
 import scala.io.{Source, StdIn}
 import MapOperations._
@@ -27,6 +25,11 @@ object Main {
     "11. Pravljenje imenovane kompozitne operacije \n" +
     "12. Sacuvaj mapu \n" +
     "13. Nazad"
+
+  val gameMenu: String = "1. Odigravanje poteza \n" +
+    "2. Ucitavanje poteza iz fajla \n" +
+    "3. Nazad \n" +
+    "Uneti izbor: "
 
   val startChar = 'S'
   val finishChar = 'T'
@@ -67,30 +70,56 @@ object Main {
       StdIn.readChar() match {
         case '1' =>
           readMapFromFile(getMapFilePath) match {
-            case None => println("Neuspesno ucitavanje mape!")
             case Some(x) => maps = x :: maps
+            case None => println("Neuspesno ucitavanje mape!")
           }
         case '2' =>
-          val map = getMap(inputMapNumber(), maps)
-          map match {
-            case None => println("Pogresan unos!")
-            case Some(_map) =>
-              println(playMove(inputPlayerMove, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
-          }
+          menuStack = new GameMenu() :: menuStack
+//          getMap(inputMapNumber(), maps) match {
+//            case None => println("Pogresan unos!")
+//            case Some(_map) => println(playMove(inputPlayerMove, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
+//          }
         case '3' =>
           menuStack = new MapOpsMenu(getMap(inputMapNumber(), maps)) :: menuStack
         case '4' =>
-          val map = getMap(inputMapNumber(), maps)
-          map match {
-            case Some(_map) =>
-//              println(getPath(initBlockPosition(_map), _map).mkString)
-              printPathToFile(getPath(initBlockPosition(_map), _map))
+          getMap(inputMapNumber(), maps) match {
+            case Some(_map) => printPathToFile(getPath(initBlockPosition(_map), _map))
             case None => println("Pogresan unos!")
           }
         case '5' =>
           menuStack = List()
         case _ =>
           println("Pogresan unos!")
+      }
+    }
+  }
+
+  def inputFileName(): String = {
+    println("Uneti ime fajla: \n")
+    StdIn.readLine()
+  }
+
+  def getFileLineIterator(file: String): Iterator[String] = {
+    Source.fromFile(file).getLines()
+  }
+
+  val lineIterator = getFileLineIterator(inputFileName())
+  val getNextChar = () => lineIterator.next().charAt(0)
+
+  class GameMenu() extends Menu {
+    override def menu(): Unit = {
+      println(gameMenu)
+      StdIn.readChar() match {
+        case '1' => getMap(inputMapNumber(), maps) match {
+          case Some(_map) => println(playMove(inputPlayerMove, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
+          case None => println("Pogresan unos!")
+        }
+        case '2' => getMap(inputMapNumber(), maps) match {
+          case Some(_map) => println(playMove(inputPlayerMove, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
+          case None => println("Pogresan unos!")
+        }
+        case '3' => menuStack = menuStack.tail
+        case _ => println("Pogresan unos!")
       }
     }
   }
@@ -145,10 +174,10 @@ object Main {
           case Some(listOfNumbers) => compositsMap += (inputSequenceName() -> makeCompositeOperation(listOfNumbers.reverse))
           case None => println("Greska!")
         }
-        case "12" =>
+        case "12" => // sacuvaj mapu
           maps = map.get :: maps
           menuStack = menuStack.tail
-        case "13" =>
+        case "13" => // nazad
           menuStack = menuStack.tail
         case other =>
           try{
