@@ -28,6 +28,14 @@ object FindingPath {
     case `up` => down
   }
 
+  def printPathToFile(path: List[Char]): Unit = {
+    import java.io._
+    val pw = new PrintWriter(new File(s"path$fileNameCnt.txt" ))
+    pw.write(path.mkString("\n"))
+    pw.close()
+    fileNameCnt = fileNameCnt + 1
+  }
+
   def getPath(block: Block, map: Map): List[Char] = {
     stackBuffer.clear()
     for (permutation <- moves.permutations.toList){                      // every permutation of moves collection

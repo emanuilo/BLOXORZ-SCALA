@@ -28,12 +28,13 @@ object Main {
     "12. Sacuvaj mapu \n" +
     "13. Nazad"
 
-  val startChar: Char = 'S'
-  val finishChar: Char = 'T'
-  val plateChar: Char = 'o'
-  val specPlateChar: Char = '.'
-  val noPlateChar: Char = '-'
+  val startChar = 'S'
+  val finishChar = 'T'
+  val plateChar = 'o'
+  val specPlateChar = '.'
+  val noPlateChar = '-'
   val OFFSET = 4
+  var fileNameCnt = 0
 
   var maps: List[Map] = List()
   var menuStack: List[Menu] = List(new MainMenu)
@@ -82,7 +83,8 @@ object Main {
           val map = getMap(inputMapNumber(), maps)
           map match {
             case Some(_map) =>
-              println(getPath(initBlockPosition(_map), _map))
+//              println(getPath(initBlockPosition(_map), _map).mkString)
+              printPathToFile(getPath(initBlockPosition(_map), _map))
             case None => println("Pogresan unos!")
           }
         case '5' =>
