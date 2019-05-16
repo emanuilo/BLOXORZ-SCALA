@@ -1,4 +1,5 @@
 import Main._
+import Game._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -29,6 +30,7 @@ object FindingPath {
   }
 
   def printPathToFile(path: List[Char]): Unit = {
+    println(path)
     import java.io._
     val pw = new PrintWriter(new File(s"path$fileNameCnt.txt" ))
     pw.write(path.mkString("\n"))
@@ -151,6 +153,7 @@ object FindingPath {
           "Fail"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with 'o'
+          saveOldSpec(map, pos1.x + row, pos1.y + col, pos1.x + 2 * row, pos1.y + 2 * col)
           map.map(pos1.x + row)(pos1.y + col) = 'X'                               // replace char with 'X' at new block position
           map.map(pos1.x + 2 * row)(pos1.y + 2 * col) = 'X'                       // replace char with 'X' at new block position
           map.map(finishPos._1)(finishPos._2) = 'T'                               // put back finish position if it's been overwritten
@@ -168,11 +171,15 @@ object FindingPath {
           "OK"
         }
       case Block(pos1, Some(pos2)) if pos1.x == pos2.x => // block is lying horizontally
-        if (map.map(pos1.x + row)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
+        if (map.map(pos1.x + row)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-' || (
+            direction == left && map.map(pos1.x)(pos1.y + col) == specPlateChar) || (
+            direction == right && map.map(pos2.x)(pos2.y + col) == specPlateChar)) // game over if block gets out of the map
           "Fail"
         else if (map.map(pos1.x)(pos1.y + col) == 'T' && col == -1 || map.map(pos2.x)(pos2.y + col) == 'T' && col == 1) "Win"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
+          rewriteOldSpec(map)                                                     // rewrite spec plates if they have been replaced by the block
+          saveOldSpec(map, pos1.x + row, pos1.y + col, pos2.x + row, pos2.y + col)
           if(col == -1)
             map.map(pos1.x + row)(pos1.y + col) = 'X'                             // replace char with 'X' at new block position
           else
@@ -197,12 +204,16 @@ object FindingPath {
           "OK"
         }
       case Block(pos1, Some(pos2)) if pos1.x != pos2.x => // block is lying vertically
-        if (map.map(pos1.x + row)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
+        if (map.map(pos1.x + row)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-' || (
+            direction == up && map.map(pos1.x + row)(pos1.y) == specPlateChar) || (
+            direction == down && map.map(pos2.x + row)(pos2.y) == specPlateChar)) // game over if block gets out of the map
           "Fail"
         else if (map.map(pos1.x + row)(pos1.y) == 'T' && row == -1 || map.map(pos2.x + row)(pos2.y) == 'T' && row == 1) "Win"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
           map.map(pos2.x) = map.map(pos2.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
+          rewriteOldSpec(map)                                                     // rewrite spec plates if they have been replaced by the block
+          saveOldSpec(map, pos1.x + row, pos1.y + col, pos2.x + row, pos2.y + col)
           if (row == -1)
             map.map(pos1.x + row)(pos1.y + col) = 'X'                             // replace char with 'X' at new block position
           else

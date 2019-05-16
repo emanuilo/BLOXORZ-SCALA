@@ -1,5 +1,6 @@
 
 import Main._
+import Game._
 import scala.io.StdIn
 
 object MapOperations {
