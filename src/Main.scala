@@ -68,21 +68,15 @@ object Main {
     override def menu(): Unit = {
       println(menuStr)
       StdIn.readChar() match {
-        case '1' =>
-          readMapFromFile(getMapFilePath) match {
+        case '1' => readMapFromFile(getMapFilePath) match {
             case Some(x) => maps = x :: maps
             case None => println("Neuspesno ucitavanje mape!")
           }
         case '2' =>
           menuStack = new GameMenu() :: menuStack
-//          getMap(inputMapNumber(), maps) match {
-//            case None => println("Pogresan unos!")
-//            case Some(_map) => println(playMove(inputPlayerMove, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
-//          }
         case '3' =>
           menuStack = new MapOpsMenu(getMap(inputMapNumber(), maps)) :: menuStack
-        case '4' =>
-          getMap(inputMapNumber(), maps) match {
+        case '4' => getMap(inputMapNumber(), maps) match {
             case Some(_map) => printPathToFile(getPath(initBlockPosition(_map), _map))
             case None => println("Pogresan unos!")
           }
@@ -94,28 +88,23 @@ object Main {
     }
   }
 
-  def inputFileName(): String = {
-    println("Uneti ime fajla: \n")
-    StdIn.readLine()
-  }
-
-  def getFileLineIterator(file: String): Iterator[String] = {
-    Source.fromFile(file).getLines()
-  }
-
-  val lineIterator = getFileLineIterator(inputFileName())
-  val getNextChar = () => lineIterator.next().charAt(0)
-
   class GameMenu() extends Menu {
     override def menu(): Unit = {
       println(gameMenu)
       StdIn.readChar() match {
         case '1' => getMap(inputMapNumber(), maps) match {
-          case Some(_map) => println(playMove(inputPlayerMove, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
+          case Some(_map) => println(playMove(inputPlayerMove _, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
           case None => println("Pogresan unos!")
         }
         case '2' => getMap(inputMapNumber(), maps) match {
-          case Some(_map) => println(playMove(inputPlayerMove, initBlockPosition(_map), Map(_map.map.map(_.clone()))))
+          case Some(_map) =>
+            val iter = getFileLineIterator(inputFileName())
+            try{
+              println(playMove(() => iter.next().charAt(0), initBlockPosition(_map), Map(_map.map.map(_.clone()))))
+            }
+            catch {
+              case e: NoSuchElementException => println("Fail \n")
+            }
           case None => println("Pogresan unos!")
         }
         case '3' => menuStack = menuStack.tail
@@ -214,42 +203,20 @@ object Main {
     if(menuStack.nonEmpty) main(args)
   }
 
-  def printCustomOperations(): Unit = {
-    for(((key, value), index) <- sequencesMap.zipWithIndex){
-      val number = operationList.size + index + 1 + OFFSET   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
-      println(s"$number. $key")
-    }
-    for(((key, value), index) <- compositsMap.zipWithIndex){
-      val number = operationList.size + sequencesMap.size + index + 1 + OFFSET   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
-      println(s"$number. $key")
-    }
-  }
-
-  def inputOperationsNumbers(): String = {
-    println("Uneti redne brojeve operacija: \n")
+  def inputFileName(): String = {
+    println("Uneti ime fajla: \n")
     StdIn.readLine()
   }
 
-  def makeListOfInts(str: String): Option[List[Int]] = {
-    val numbers = str.split(" ").toList
-    try{
-      Option(numbers.map(_str => Integer.parseInt(_str) - 1))
-    }
-    catch {
-      case e: NumberFormatException => None
-    }
+  def getFileLineIterator(file: String): Iterator[String] = {
+    Source.fromFile(file).getLines()
   }
 
-  def inputSequenceName(): String = {
-    println("Uneti ime sekvence: \n")
-    StdIn.readLine()
-  }
-
-  def playMove(direction: Char, block: Block, map: Map): String = {
-    val row_col = getCoordsTuple(direction)
+  def playMove(direction: () => Char, block: Block, map: Map): String = {
+    val row_col = getCoordsTuple(direction())
     if (row_col.isEmpty) {
       println("Pogresna komanda!")
-      return playMove(inputPlayerMove, block, map)
+      return playMove(direction, block, map)
     }
     val row = row_col.get._1
     val col = row_col.get._2
@@ -259,7 +226,7 @@ object Main {
       case Block(pos1, None) => // block is standing upright
         if ( map.map(pos1.x)(pos1.y + col) == '-' || map.map(pos1.x)(pos1.y + 2 * col) == '-' ||  // game over if block gets out of the map
           map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos1.x + 2 * row)(pos1.y) == '-' )
-          "Fail"
+          "Fail \n"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with 'o'
           map.map(pos1.x + row)(pos1.y + col) = 'X'                               // replace char with 'X' at new block position
@@ -272,13 +239,13 @@ object Main {
           else
             Block(Position(pos1.x + row, pos1.y + col), Some(Position(pos1.x + 2 * row, pos1.y + 2 * col)))
 
-          playMove(inputPlayerMove, newBlock, map)
+          playMove(direction, newBlock, map)
         }
       case Block(pos1, Some(pos2)) if pos1.x == pos2.x => // block is lying horizontally
         // ovde sam promenio pos1.y + col
         if (map.map(pos1.x + row)(pos1.y) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
-          "Fail"
-        else if (map.map(pos1.x)(pos1.y + col) == 'T' && col == -1 || map.map(pos2.x)(pos2.y + col) == 'T' && col == 1) "Win"
+          "Fail \n"
+        else if (map.map(pos1.x)(pos1.y + col) == 'T' && col == -1 || map.map(pos2.x)(pos2.y + col) == 'T' && col == 1) "Win \n"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
           if(col == -1)
@@ -293,13 +260,13 @@ object Main {
             else if (col == 1) Block(Position(pos2.x, pos2.y + col), None)
             else Block(Position(pos1.x + row, pos1.y), Some(Position(pos2.x + row, pos2.y)))
 
-          playMove(inputPlayerMove, newBlock, map)
+          playMove(direction, newBlock, map)
         }
       case Block(pos1, Some(pos2)) if pos1.x != pos2.x => // block is lying vertically
         //ovde sam promenio pos1.x + row
         if (map.map(pos1.x + row)(pos1.y + col) == '-' || map.map(pos2.x + row)(pos2.y + col) == '-') // game over if block gets out of the map
-          "Fail"
-        else if (map.map(pos1.x + row)(pos1.y) == 'T' && row == -1 || map.map(pos2.x + row)(pos2.y) == 'T' && row == 1) "Win"
+          "Fail \n"
+        else if (map.map(pos1.x + row)(pos1.y) == 'T' && row == -1 || map.map(pos2.x + row)(pos2.y) == 'T' && row == 1) "Win \n"
         else {
           map.map(pos1.x) = map.map(pos1.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
           map.map(pos2.x) = map.map(pos2.x).map(ch => if (ch == 'X') 'o' else ch) // replace old block position with '.'
@@ -315,7 +282,7 @@ object Main {
             else if (row == -1) Block(Position(pos1.x + row, pos1.y), None)
             else Block(Position(pos1.x, pos1.y + col), Some(Position(pos2.x, pos2.y + col)))
 
-          playMove(inputPlayerMove, newBlock, map)
+          playMove(direction, newBlock, map)
         }
     }
   }

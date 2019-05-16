@@ -200,6 +200,37 @@ object MapOperations {
     }
     map => compose(map, listOfInts)
   }
+
+  def printCustomOperations(): Unit = {
+    for(((key, value), index) <- sequencesMap.zipWithIndex){
+      val number = operationList.size + index + 1 + OFFSET   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
+      println(s"$number. $key")
+    }
+    for(((key, value), index) <- compositsMap.zipWithIndex){
+      val number = operationList.size + sequencesMap.size + index + 1 + OFFSET   // plus 4 because there is 4 other items in list besides basic operations (save the map, back, etc.)
+      println(s"$number. $key")
+    }
+  }
+
+  def inputOperationsNumbers(): String = {
+    println("Uneti redne brojeve operacija: \n")
+    StdIn.readLine()
+  }
+
+  def makeListOfInts(str: String): Option[List[Int]] = {
+    val numbers = str.split(" ").toList
+    try{
+      Option(numbers.map(_str => Integer.parseInt(_str) - 1))
+    }
+    catch {
+      case e: NumberFormatException => None
+    }
+  }
+
+  def inputSequenceName(): String = {
+    println("Uneti ime sekvence: \n")
+    StdIn.readLine()
+  }
 }
 
 
